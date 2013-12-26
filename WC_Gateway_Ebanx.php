@@ -48,6 +48,9 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     $this->description  = $this->get_option('description');
     $this->merchant_key = $this->get_option('merchant_key');
     $this->test_mode    = $this->get_option('test_mode');
+    $this->enable_installments = $this->get_option('enable_installments');
+    $this->max_installments    = $this->get_option('max_installments');
+    $this->interest_rate       = $this->get_option('interest_rate');
 
     // Set EBANX configs
     \Ebanx\Config::set(array(
@@ -57,6 +60,8 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
 
     add_action('woocommerce_update_options_payment_gateways_' . $this->id, array(&$this, 'process_admin_options'));
     add_action('woocommerce_receipt_ebanx', array(&$this, 'receipt_page'));
+    add_filter('woocommerce_after_order_notes', array(&$this, 'checkout_fields_installments'));
+    add_action('woocommerce_checkout_update_order_meta', array(&$this, 'checkout_fields_installments_save'));
   }
 
   /**
@@ -69,8 +74,14 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       'enabled' => array(
         'title'   => __('Enable/Disable', 'woocommerce'),
         'type'    => 'checkbox',
-        'label'   => __('Enable EBANX Payment', 'woocommerce'),
+        'label'   => __('Enable EBANX payment gateway', 'woocommerce'),
         'default' => 'yes'
+      ),
+      'merchant_key' => array(
+        'title'   => __('Merchant key', 'woocommerce'),
+        'type'    => 'text',
+        'default' => '',
+        'description' => ''
       ),
       'title' => array(
         'title'    => __('Title', 'woocommerce'),
@@ -80,7 +91,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
         'description' => __('This controls the title which the user sees during checkout.', 'woocommerce')
       ),
       'description' => array(
-        'title'   => __('Customer Message', 'woocommerce'),
+        'title'   => __('Customer message', 'woocommerce'),
         'type'    => 'textarea',
         'default' => __('EBANX is the market leader in e-commerce payment solutions for International Merchants selling online to Brazil.', 'woocommerce'),
         'description' => __('Give the customer instructions for paying via EBANX.', 'woocommerce')
@@ -88,17 +99,103 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       'test_mode' => array(
         'title'   => __('Test mode', 'woocommerce'),
         'type'    => 'checkbox',
-        'label'   => __('Enable Test Mode', 'woocommerce'),
+        'label'   => __('Enable test mode', 'woocommerce'),
         'default' => 'yes',
         'description' => ''
       ),
-      'merchant_key' => array(
-        'title'   => __('Merchant Key', 'woocommerce'),
-        'type'    => 'text',
-        'default' => '',
-        'description' => ''
+      'enable_installments' => array(
+        'title'   => __('Installments', 'woocommerce'),
+        'type'    => 'checkbox',
+        'label'   => __('Enable installments', 'woocommerce'),
+        'default' => 'no'
       ),
+      'max_installments' => array(
+        'title'   => __('Maximum number of installments', 'woocommerce'),
+        'type'    => 'select',
+        'default' => 1,
+        'options' => array(
+          1 => 1,
+          2 => 2,
+          3 => 3,
+          4 => 4,
+          5 => 5,
+          6 => 6
+        )
+      ),
+      'interest_rate' => array(
+        'title'   => __('Installments interest rate (%)', 'woocommerce'),
+        'type'    => 'text',
+        'default' => 0.0,
+      )
     );
+  }
+
+  function checkout_fields_installments_save($order_id)
+  {
+    global $woocommerce;
+
+    if (isset($_POST['installments_number']))
+    {
+      update_post_meta($order_id, 'installments_number', esc_attr($_POST['installments_number']));
+      update_post_meta($order_id, 'installments_card', esc_attr($_POST['installments_card']));
+    }
+  }
+
+  /**
+   * Adds installments fields to the checkout page
+   */
+  public function checkout_fields_installments($checkout)
+  {
+    global $woocommerce;
+
+    if ($this->enable_installments == 'yes')
+    {
+      $options = array();
+      $total = $woocommerce->cart->total;
+
+      // 1x - no interest
+      $options[1] = '1 x $' . $total;
+
+      // 2x or more - with interest (optional)
+      $total = ($total * (100 + $this->interest_rate)) / 100.0;
+      for ($i = 2; $i < $this->max_installments; $i++)
+      {
+        $value = money_format('%i', $total / floatval($i));
+        $label = $i . ' x $' . $value;
+        $options[$i] = $label;
+      }
+
+      echo '<div id="ebanx_installments"><h3>' . __('Installments') . '</h3>';
+
+      woocommerce_form_field('installments_number', array(
+        'type'    => 'select',
+        'class'   => array('form-row-wide'),
+        'options' => $options
+        ), $checkout->get_value('installments_number'));
+
+      woocommerce_form_field('installments_card', array(
+        'type'    => 'select',
+        'class'   => array('form-row-wide'),
+        'options' => array('visa' => 'Visa', 'mastercard' => 'Mastercard')
+        ), $checkout->get_value('installments_card'));
+
+      echo '</div>';
+
+      $woocommerce->add_inline_js("
+        var cardPicker = $('#installments_card');
+        cardPicker.hide();
+
+        jQuery('#installments_number').change(function() {
+          var value = $(this).val();
+
+          if (value == 1) {
+            cardPicker.hide();
+          } else {
+            cardPicker.show();
+          }
+        });
+      ");
+    }
   }
 
   /**
@@ -137,7 +234,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     $birthDate = isset($order->billing_birthdate) ? $order->billing_birthdate : '';
     $streetNumber = isset($order->billing_number) ? $order->billing_number : '';
 
-    $response = \Ebanx\Ebanx::doRequest(array(
+    $params = array(
         'name' => $order->billing_first_name . ' ' . $order->billing_last_name
       , 'email' => $order->billing_email
       , 'payment_type_code' => '_all'
@@ -150,13 +247,22 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       , 'zipcode' => $order->billing_postcode
       , 'street_number'
       , 'phone_number' => $order->billing_phone
-    ));
+    );
+
+    if (isset($order->order_custom_fields['installments_number'][0]) && $order->order_custom_fields['installments_number'][0] > 1)
+    {
+      $params['instalments'] = $order->order_custom_fields['installments_number'][0];
+      $params['payment_type_code'] = $order->order_custom_fields['installments_card'][0];
+      $params['amount'] = ($params['amount'] * (100 + $this->interest_rate)) / 100.0;
+    }
+
+    $response = \Ebanx\Ebanx::doRequest($params);
 
     if ($response->status == 'SUCCESS')
     {
       $woocommerce->add_inline_js( '
         jQuery("body").block({
-            message: "' . esc_js( __( 'Thank you for your order. We are now redirecting you to EBANX to make payment.', 'woocommerce' ) ) . '",
+            message: "' . esc_js( __( 'Thank you for your order. We are now redirecting you to EBANX.', 'woocommerce' ) ) . '",
             baseZ: 99999,
             overlayCSS:
             {
