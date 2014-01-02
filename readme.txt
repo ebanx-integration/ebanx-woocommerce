@@ -5,8 +5,8 @@ Tags: ebanx, woocommerce, payment
 Requires at least: 3.7.0
 Tested up to: 3.8
 Stable tag: 1.0.0
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License: BSD3
+License URI: http://opensource.org/licenses/BSD-3-Clause
 
 EBANX is the market leader in e-commerce payment solutions for International Merchants selling online to Brazil.
 This plugin enables you to integrate your WooCommerce store with the EBANX payment gateway.
@@ -27,7 +27,15 @@ How to install the plugin:
 3. Visit your WooCommerce settings menu:
     WooCommerce > Settings > Payment Gateways > EBANX
 4. Enable the EBANX payment gateway, and add your integration key.
-5. Save the settings, and you're done!
+5.1 Change the _Status Change Notification URL_ to:
+```
+{YOUR_SITE}/index.php/ebanx/notify/
+```
+5.2 Change the _Response URL_ to:
+```
+{YOUR_SITE}/index.php/ebanx/return/
+```
+6. That's all!
 
 == Changelog ==
 
