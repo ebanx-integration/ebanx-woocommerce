@@ -27,11 +27,11 @@ How to install the plugin:
 3. Visit your WooCommerce settings menu:
     WooCommerce > Settings > Payment Gateways > EBANX
 4. Enable the EBANX payment gateway, and add your integration key.
-5.1 Change the _Status Change Notification URL_ to:
+5.1. Change the _Status Change Notification URL_ to:
 ```
 {YOUR_SITE}/index.php/ebanx/notify/
 ```
-5.2 Change the _Response URL_ to:
+5.2. Change the _Response URL_ to:
 ```
 {YOUR_SITE}/index.php/ebanx/return/
 ```
