@@ -25,4 +25,5 @@ git clone --recursive https://github.com/ebanx/ebanx-woocommerce.git
 5. That's all!
 
 ## Changelog
-_1.0.0_: first release
+* 1.0.1: enforced minimum installment value (R$20), fixed order ID/merchant code
+* 1.0.0: first release

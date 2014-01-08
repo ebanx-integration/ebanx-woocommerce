@@ -44,10 +44,10 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     $this->init_settings();
 
     // Define user set variables
-    $this->title        = $this->get_option('title');
-    $this->description  = $this->get_option('description');
-    $this->merchant_key = $this->get_option('merchant_key');
-    $this->test_mode    = $this->get_option('test_mode');
+    $this->title               = $this->get_option('title');
+    $this->description         = $this->get_option('description');
+    $this->merchant_key        = $this->get_option('merchant_key');
+    $this->test_mode           = $this->get_option('test_mode');
     $this->enable_installments = $this->get_option('enable_installments');
     $this->max_installments    = $this->get_option('max_installments');
     $this->interest_rate       = $this->get_option('interest_rate');
@@ -158,7 +158,16 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
 
       // 2x or more - with interest (optional)
       $total = ($total * (100 + $this->interest_rate)) / 100.0;
-      for ($i = 2; $i < $this->max_installments; $i++)
+
+      // Enforce installment value of R$20,00
+      $maxInstallments = $this->max_installments;
+      $totalReal = (strtoupper(get_woocommerce_currency()) == 'BRL') ? $total : $total * 2.5;
+      if (($totalReal / 20) < $maxInstallments)
+      {
+        $maxInstallments = $totalReal / 20;
+      }
+
+      for ($i = 2; $i <= $maxInstallments; $i++)
       {
         $value = money_format('%i', $total / floatval($i));
         $label = $i . ' x $' . $value;
@@ -182,6 +191,23 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       echo '</div>';
 
       $woocommerce->add_inline_js("
+        var installmentsBlock = $('#ebanx_installments');
+        installmentsBlock.hide();
+
+        // Fix to show installments when EBANX is the default payment method
+        setTimeout(function() {
+          if ($('input[name=payment_method]:checked').val() == 'ebanx') {
+            installmentsBlock.show();
+          }}, 1000);
+
+        $('body').on('click', 'input[name=payment_method]', function() {
+          if ($(this).val() == 'ebanx') {
+            installmentsBlock.show();
+          } else {
+            installmentsBlock.hide();
+          }
+        });
+
         var cardPicker = $('#installments_card');
         cardPicker.hide();
 
@@ -230,23 +256,23 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     global $woocommerce;
     $order = new WC_Order($order_id);
 
-    $cpf = isset($order->billing_cpf) ? $order->billing_cpf : '';
-    $birthDate = isset($order->billing_birthdate) ? $order->billing_birthdate : '';
+    $cpf          = isset($order->billing_cpf) ? $order->billing_cpf : '';
+    $birthDate    = isset($order->billing_birthdate) ? $order->billing_birthdate : '';
     $streetNumber = isset($order->billing_number) ? $order->billing_number : '';
 
     $params = array(
-        'name' => $order->billing_first_name . ' ' . $order->billing_last_name
-      , 'email' => $order->billing_email
+        'name'              => $order->billing_first_name . ' ' . $order->billing_last_name
+      , 'email'             => $order->billing_email
       , 'payment_type_code' => '_all'
-      , 'amount' => $order->order_total
-      , 'currency_code' => get_woocommerce_currency()
-      , 'merchant_payment_code' => time() . '_' . $order_id
-      , 'address' => $order->billing_address_1
-      , 'cpf' => $cpf
+      , 'amount'            => $order->order_total
+      , 'currency_code'     => get_woocommerce_currency()
+      , 'merchant_payment_code' => $order_id
+      , 'address'           => $order->billing_address_1
+      , 'cpf'               => $cpf
       , 'birth_date'
-      , 'zipcode' => $order->billing_postcode
-      , 'street_number'
-      , 'phone_number' => $order->billing_phone
+      , 'zipcode'           => $order->billing_postcode
+      , 'street_number'     => ''
+      , 'phone_number'      => $order->billing_phone
     );
 
     if (isset($order->order_custom_fields['installments_number'][0]) && $order->order_custom_fields['installments_number'][0] > 1)

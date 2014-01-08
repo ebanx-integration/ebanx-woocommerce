@@ -4,7 +4,7 @@ Donate link: http://ebanx.com/
 Tags: ebanx, woocommerce, payment
 Requires at least: 3.7.0
 Tested up to: 3.8
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: BSD3
 License URI: http://opensource.org/licenses/BSD-3-Clause
 
@@ -39,5 +39,8 @@ How to install the plugin:
 
 == Changelog ==
 
+= 1.0.1
+* Enforced minimum installment value (R$20).
+* Fixed order ID/merchant code.
 = 1.0 =
 * First release.

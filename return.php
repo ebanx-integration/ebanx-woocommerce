@@ -65,8 +65,7 @@ function ebanx_notify_response()
 
     if (isset($response->status) && $response->status == 'SUCCESS')
     {
-      $tmp = explode('_', $response->payment->merchant_payment_code);
-      $orderId = (int) $tmp[1];
+      $orderId = (int) $response->payment->merchant_payment_code;
       $order = new WC_Order($orderId);
 
       if ($response->payment->status == 'CA')
@@ -102,9 +101,8 @@ function ebanx_return_response()
 
   $response = \Ebanx\Ebanx::doQuery(array('hash' => $_GET['hash']));
 
-  $tmp = explode('_', $_GET['merchant_payment_code']);
-  $orderId = (int) $tmp[1];
-  $order = new WC_Order($orderId);
+  $orderId = (int) $_GET['merchant_payment_code'];
+  $order   = new WC_Order($orderId);
 
   if (isset($response->status) && $response->status == 'SUCCESS' && ($response->payment->status == 'PE' || $response->payment->status == 'CO'))
   {
