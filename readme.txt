@@ -39,6 +39,8 @@ How to install the plugin:
 
 == Changelog ==
 
+= 1.0.3 =
+* Fixed mode setter
 = 1.0.2 =
 * Bumped version
 = 1.0.1 =
