@@ -148,7 +148,8 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
   {
     global $woocommerce;
 
-    if ($this->enable_installments == 'yes')
+    // Force disable on checkout mode
+    if ($this->enable_installments == 'yes' && false)
     {
       $options = array();
       $total = $woocommerce->cart->total;
