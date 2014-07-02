@@ -48,20 +48,26 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     $this->description         = $this->get_option('description');
     $this->merchant_key        = $this->get_option('merchant_key');
     $this->test_mode           = $this->get_option('test_mode');
-    $this->enable_installments = $this->get_option('enable_installments');
-    $this->max_installments    = $this->get_option('max_installments');
-    $this->interest_rate       = $this->get_option('interest_rate');
+    $this->enable_boleto       = $this->get_option('method_boleto') == 'yes';
+    $this->enable_tef          = $this->get_option('method_tef') == 'yes';
+    $this->enable_cc           = $this->get_option('method_cc') == 'yes';
+
+    // Images
+    $this->icon_boleto = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/images/icon_boleto.png';
+    $this->icon_tef    = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/images/icon_tef.png';
+    $this->icon_cc     = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/images/icon_cc.png';
 
     // Set EBANX configs
     \Ebanx\Config::set(array(
         'integrationKey' => $this->merchant_key
       , 'testMode'       => ($this->test_mode == 'yes')
+      , 'directMode'     => true
     ));
 
     add_action('woocommerce_update_options_payment_gateways_' . $this->id, array(&$this, 'process_admin_options'));
     add_action('woocommerce_receipt_ebanx', array(&$this, 'receipt_page'));
-    add_filter('woocommerce_after_order_notes', array(&$this, 'checkout_fields_installments'));
-    add_action('woocommerce_checkout_update_order_meta', array(&$this, 'checkout_fields_installments_save'));
+    add_filter('woocommerce_after_order_notes', array(&$this, 'checkout_fields'));
+    add_action('woocommerce_checkout_update_order_meta', array(&$this, 'checkout_fields_save'));
   }
 
   /**
@@ -86,14 +92,14 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       'title' => array(
         'title'    => __('Title', 'woocommerce'),
         'type'     => 'text',
-        'default'  => __('EBANX', 'woocommerce'),
+        'default'  => __('Boleto bancário, cartão de crédito e transferência eletrônica', 'woocommerce'),
         'desc_tip' => true,
         'description' => __('This controls the title which the user sees during checkout.', 'woocommerce')
       ),
       'description' => array(
         'title'   => __('Customer message', 'woocommerce'),
         'type'    => 'textarea',
-        'default' => __('EBANX is the market leader in e-commerce payment solutions for International Merchants selling online to Brazil.', 'woocommerce'),
+        'default' => __('Pagamentos para clientes do Brasil.', 'woocommerce'),
         'description' => __('Give the customer instructions for paying via EBANX.', 'woocommerce')
       ),
       'test_mode' => array(
@@ -103,34 +109,31 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
         'default' => 'yes',
         'description' => ''
       ),
-      'enable_installments' => array(
-        'title'   => __('Installments', 'woocommerce'),
+      'method_boleto' => array(
+        'title'   => __('Enable boleto', 'woocommerce'),
         'type'    => 'checkbox',
-        'label'   => __('Enable installments', 'woocommerce'),
-        'default' => 'no'
+        'label'   => __('Enable boleto payments', 'woocommerce'),
+        'default' => 'yes',
+        'description' => ''
       ),
-      'max_installments' => array(
-        'title'   => __('Maximum number of installments', 'woocommerce'),
-        'type'    => 'select',
-        'default' => 1,
-        'options' => array(
-          1 => 1,
-          2 => 2,
-          3 => 3,
-          4 => 4,
-          5 => 5,
-          6 => 6
-        )
+      'method_tef' => array(
+        'title'   => __('Enable bank transfer', 'woocommerce'),
+        'type'    => 'checkbox',
+        'label'   => __('Enable bank transfer payments', 'woocommerce'),
+        'default' => 'yes',
+        'description' => ''
       ),
-      'interest_rate' => array(
-        'title'   => __('Installments interest rate (%)', 'woocommerce'),
-        'type'    => 'text',
-        'default' => 0.0,
+      'method_cc' => array(
+        'title'   => __('Enable credit cards', 'woocommerce'),
+        'type'    => 'checkbox',
+        'label'   => __('Enable credit cards payments', 'woocommerce'),
+        'default' => 'no',
+        'description' => ''
       )
     );
   }
 
-  function checkout_fields_installments_save($order_id)
+  function checkout_fields_save($order_id)
   {
     global $woocommerce;
 
@@ -144,85 +147,9 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
   /**
    * Adds installments fields to the checkout page
    */
-  public function checkout_fields_installments($checkout)
+  public function checkout_fields($checkout)
   {
     global $woocommerce;
-
-    // Force disable on checkout mode
-    if ($this->enable_installments == 'yes' && false)
-    {
-      $options = array();
-      $total = $woocommerce->cart->total;
-
-      // 1x - no interest
-      $options[1] = '1 x $' . $total;
-
-      // 2x or more - with interest (optional)
-      $total = ($total * (100 + $this->interest_rate)) / 100.0;
-
-      // Enforce installment value of R$20,00
-      $maxInstallments = $this->max_installments;
-      $totalReal = (strtoupper(get_woocommerce_currency()) == 'BRL') ? $total : $total * 2.5;
-      if (($totalReal / 20) < $maxInstallments)
-      {
-        $maxInstallments = $totalReal / 20;
-      }
-
-      for ($i = 2; $i <= $maxInstallments; $i++)
-      {
-        $value = money_format('%i', $total / floatval($i));
-        $label = $i . ' x $' . $value;
-        $options[$i] = $label;
-      }
-
-      echo '<div id="ebanx_installments"><h3>' . __('Installments') . '</h3>';
-
-      woocommerce_form_field('installments_number', array(
-        'type'    => 'select',
-        'class'   => array('form-row-wide'),
-        'options' => $options
-        ), $checkout->get_value('installments_number'));
-
-      woocommerce_form_field('installments_card', array(
-        'type'    => 'select',
-        'class'   => array('form-row-wide'),
-        'options' => array('visa' => 'Visa', 'mastercard' => 'Mastercard')
-        ), $checkout->get_value('installments_card'));
-
-      echo '</div>';
-
-      $woocommerce->add_inline_js("
-        var installmentsBlock = $('#ebanx_installments');
-        installmentsBlock.hide();
-
-        // Fix to show installments when EBANX is the default payment method
-        setTimeout(function() {
-          if ($('input[name=payment_method]:checked').val() == 'ebanx') {
-            installmentsBlock.show();
-          }}, 1000);
-
-        $('body').on('click', 'input[name=payment_method]', function() {
-          if ($(this).val() == 'ebanx') {
-            installmentsBlock.show();
-          } else {
-            installmentsBlock.hide();
-          }
-        });
-
-        var cardPicker = $('#installments_card');
-        cardPicker.hide();
-
-        jQuery('#installments_number').change(function() {
-          var value = $(this).val();
-
-          if (value == 1) {
-            cardPicker.hide();
-          } else {
-            cardPicker.show();
-          }
-        });
-      ");
-    }
   }
 
   /**
@@ -244,7 +171,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
    */
   public function receipt_page($order)
   {
-    echo '<p>'.__('Thank you for your order, please click the button below to pay with ebanx.', 'woocommerce').'</p>';
+    echo '<p>'.__('Por favor preencha os campos abaixo para finalizar o pagamento:', 'woocommerce').'</p>';
     echo $this->generate_ebanx_form( $order );
   }
 
@@ -255,6 +182,29 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
   public function generate_ebanx_form($order_id)
   {
     global $woocommerce;
+
+    // Loads the current order
+    $order = new WC_Order($order_id);
+
+    $tplDir = dirname(__FILE__) . '/template/';
+
+    $template = file_get_contents($tplDir . 'checkout.php');
+    echo eval(' ?>' . $template . '<?php ');
+
+    $jsCode = file_get_contents($tplDir . 'checkout.js');
+    $woocommerce->add_inline_js($jsCode);
+
+    // If is GET, do nothing, otherwise process the request
+    if ($_SERVER['REQUEST_METHOD'] === 'GET')
+    {
+      return;
+    }
+
+    echo 'post!';
+
+
+    return;
+
     $order = new WC_Order($order_id);
 
     $cpf          = isset($order->billing_cpf) ? $order->billing_cpf : '';
