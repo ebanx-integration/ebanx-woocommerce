@@ -81,28 +81,7 @@ jQuery(document).ready(function() {
     }
   }();
 
-  /**
-   * Hide installments if the selected card is Discover
-   */
-  function enableInstallments() {
-    var installments = document.getElementById('ebanx_installments')
-      , ccType       = document.getElementById('ebanx_cc_type');
-
-    if (!ccType) {
-      return;
-    }
-
-    if (ccType.value == 'discover') {
-      installments.style.display = 'none';
-    } else {
-      installments.style.display = 'block';
-    }
-  };
-
-  var methodCCType = document.getElementById('ebanx_cc_type');
-  if (methodCCType) methodCCType.onchange = enableInstallments;
-
-  /**
+ /**
    * Validates the CPF number
    *
    */
@@ -155,10 +134,8 @@ jQuery(document).ready(function() {
     } else {
       toggleType('');
     }
-
-    // Enable/disable installments depending on the card
-    enableInstallments();
   }
+
   var ccNumber = document.getElementById('ebanx_cc_number');
   if (ccNumber) {
     ccNumber.onkeydown = updateCCIssuer;

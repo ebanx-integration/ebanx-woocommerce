@@ -171,10 +171,24 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
    */
   public function receipt_page($order)
   {
-    echo '<p>'.__('Por favor preencha os campos abaixo para finalizar o pagamento:', 'woocommerce').'</p>';
-    echo $this->generate_ebanx_form( $order );
+    echo $this->generate_ebanx_form($order);
   }
 
+  protected function _renderCheckout($order_id)
+  {
+    global $woocommerce;
+
+    $order = new WC_Order($order_id);
+
+    $tplDir = dirname(__FILE__) . '/template/';
+
+    $template = file_get_contents($tplDir . 'checkout.php');
+    echo eval(' ?>' . $template . '<?php ');
+
+    $jsCode = file_get_contents($tplDir . 'checkout.js');
+    $woocommerce->add_inline_js($jsCode);
+
+  }
   /**
    * Generate the EBANX button link
    * @return string
@@ -186,87 +200,96 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     // Loads the current order
     $order = new WC_Order($order_id);
 
-    $tplDir = dirname(__FILE__) . '/template/';
-
-    $template = file_get_contents($tplDir . 'checkout.php');
-    echo eval(' ?>' . $template . '<?php ');
-
-    $jsCode = file_get_contents($tplDir . 'checkout.js');
-    $woocommerce->add_inline_js($jsCode);
-
     // If is GET, do nothing, otherwise process the request
     if ($_SERVER['REQUEST_METHOD'] === 'GET')
     {
+      $this->_renderCheckout($order_id);
       return;
     }
 
-    echo 'post!';
-
-
-    return;
-
     $order = new WC_Order($order_id);
 
-    $cpf          = isset($order->billing_cpf) ? $order->billing_cpf : '';
-    $birthDate    = isset($order->billing_birthdate) ? $order->billing_birthdate : '';
-    $streetNumber = isset($order->billing_number) ? $order->billing_number : '';
+    $postBdate    = $_POST['ebanx']['birth_day'] . '/' . $_POST['ebanx']['birth_month'] . '/' . $_POST['ebanx']['birth_year'];
+    $cpf          = isset($order->billing_cpf) ? $order->billing_cpf : $_POST['ebanx_cpf'];
+    $birthDate    = isset($order->billing_birthdate) ? $order->billing_birthdate : $postBdate;
+    $streetNumber = isset($order->billing_number) ? $order->billing_number : '1';
 
     $params = array(
-        'name'              => $order->billing_first_name . ' ' . $order->billing_last_name
-      , 'email'             => $order->billing_email
-      , 'payment_type_code' => '_all'
-      , 'amount'            => $order->order_total
-      , 'currency_code'     => get_woocommerce_currency()
-      , 'merchant_payment_code' => $order_id
-      , 'address'           => $order->billing_address_1
-      , 'cpf'               => $cpf
-      , 'birth_date'
-      , 'zipcode'           => $order->billing_postcode
-      , 'street_number'     => ''
-      , 'phone_number'      => $order->billing_phone
+        'mode'      => 'full'
+      , 'operation' => 'request'
+      , 'payment'   => array(
+            'merchant_payment_code' => $order_id
+          , 'amount_total'      => $order->order_total
+          , 'currency_code'     => get_woocommerce_currency()
+          , 'name'              => $order->billing_first_name . ' ' . $order->billing_last_name
+          , 'email'             => $order->billing_email
+          , 'birth_date'        => $birthDate
+          , 'document'          => $cpf
+          , 'address'           => $order->billing_address_1
+          , 'street_number'     => $streetNumber
+          , 'city'              => $order->billing_city
+          , 'state'             => $order->billing_state
+          , 'zipcode'           => $order->billing_postcode
+          , 'country'           => 'br'
+          , 'phone_number'      =>  $order->billing_phone
+          , 'payment_type_code' => 'boleto'
+        )
     );
 
-    if (isset($order->order_custom_fields['installments_number'][0]) && $order->order_custom_fields['installments_number'][0] > 1)
+    // Add credit card fields if the method is credit card
+    if ($_POST['ebanx']['method'] == 'creditcard')
     {
-      $params['instalments'] = $order->order_custom_fields['installments_number'][0];
-      $params['payment_type_code'] = $order->order_custom_fields['installments_card'][0];
-      $params['amount'] = ($params['amount'] * (100 + $this->interest_rate)) / 100.0;
+        $ccExpiration = str_pad($_POST['ebanx']['cc_expiration_month'], 2, '0', STR_PAD_LEFT) . '/'
+                      . $_POST['ebanx']['cc_expiration_year'];
+
+        $params['payment']['payment_type_code'] = $_POST['ebanx']['cc_type'];
+        $params['payment']['creditcard'] = array(
+            'card_name'     => $_POST['ebanx']['cc_name']
+          , 'card_number'   => $_POST['ebanx']['cc_number']
+          , 'card_cvv'      => $_POST['ebanx']['cc_cvv']
+          , 'card_due_date' => $ccExpiration
+        );
+    }
+
+    // For TEF and Bradesco, add redirect another parameter
+    if ($_POST['ebanx']['method'] == 'tef')
+    {
+        $params['payment']['payment_type_code'] = $_POST['ebanx']['tef_bank'];
+
+        // For Bradesco, set payment method as bank transfer
+        if ($_POST['ebanx']['tef_bank'] == 'bradesco')
+        {
+          $params['payment']['payment_type_code_option'] = 'banktransfer';
+        }
     }
 
     $response = \Ebanx\Ebanx::doRequest($params);
 
     if ($response->status == 'SUCCESS')
     {
-      $woocommerce->add_inline_js( '
-        jQuery("body").block({
-            message: "' . esc_js( __( 'Thank you for your order. We are now redirecting you to EBANX.', 'woocommerce' ) ) . '",
-            baseZ: 99999,
-            overlayCSS:
-            {
-              background: "#fff",
-              opacity: 0.6
-            },
-            css: {
-              padding:        "20px",
-              zindex:         "9999999",
-              textAlign:      "center",
-              color:          "#555",
-              border:         "3px solid #aaa",
-              backgroundColor:"#fff",
-              cursor:         "wait",
-              lineHeight:   "24px",
-            }
-          });
-        jQuery("#submit_ebanx_payment_form").click();
-      ' );
-      return '<form action="'.esc_url( $response->redirect_url ).'" method="post" id="ebanx_payment_form" target="_top">
-        <input type="hidden" name="hash" value="'.$response->payment->hash.'" />
-        <input type="submit" class="button alt" id="submit_ebanx_payment_form" value="' . __( 'Pay via EBANX', 'woocommerce' ) . '" /> <a class="button cancel" href="'.esc_url( $order->get_cancel_order_url() ).'">'.__( 'Cancel order &amp; restore cart', 'woocommerce' ).'</a>
-      </form>';
+      if ($_POST['ebanx']['method'] == 'boleto')
+      {
+        $boletoUrl = $response->payment->boleto_url;
+        $orderUrl  = $this->get_return_url($order);
+
+        $tplDir = dirname(__FILE__) . '/template/';
+
+        $template = file_get_contents($tplDir . 'boleto.php');
+        echo eval(' ?>' . $template . '<?php ');
+      }
+      else if ($_POST['ebanx']['method'] == 'tef')
+      {
+        wp_redirect($response->redirect_url);
+      }
+      else
+      {
+        wp_redirect($this->get_return_url($order));
+      }
     }
     else
     {
-      return 'Something went wrong, please contact the administrator.';
+      $_SESSION['ebanxError'] = $response->status_message;
+      $this->_renderCheckout($order_id);
     }
   }
 }

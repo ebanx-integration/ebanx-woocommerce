@@ -79,7 +79,46 @@
   line-height: 12px;
   margin: 0;
 }
+.ebanx-error {
+  background-color: rgb(242, 222, 222);
+  border-bottom-color: rgb(235, 204, 209);
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-left-color: rgb(235, 204, 209);
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-right-color: rgb(235, 204, 209);
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-top-color: rgb(235, 204, 209);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  box-sizing: border-box;
+  color: rgb(169, 68, 66);
+  display: block;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 15px;
+  }
 </style>
+
+<p>Por favor preencha os campos abaixo para finalizar o pagamento:</p>
+
+<? if (isset($_SESSION['ebanxError'])): ?>
+  <div class="ebanx-error">
+    Erro: <?= $_SESSION['ebanxError'] ?>
+  </div>
+  <? unset($_SESSION['ebanxError']) ?>
+<? endif ?>
 
 <form method="POST">
   <ul class="form-list" id="payment_ebanx_direct">
