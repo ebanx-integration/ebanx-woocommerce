@@ -125,7 +125,8 @@
     <li>
       <label for="ebanx_cpf" class="required">CPF</label>
       <div class="input-box">
-        <input type="text" title="CPF" class="input-text required-entry validate-cpf" id="ebanx_cpf" name="ebanx[cpf]" value="">
+        <input type="text" title="CPF" class="input-text required-entry validate-cpf" id="ebanx_cpf" name="ebanx[cpf]"
+        value="<?php echo isset($_POST['ebanx']['cpf']) ? $_POST['ebanx']['cpf'] : '' ?>">
       </div>
     </li>
 
@@ -200,21 +201,26 @@
       <li class="ebanx-cc-field">
         <label for="ebanx_cc_name" class="required">Name on Card</label>
         <div class="input-box">
-          <input type="text" title="Name on Card" class="input-text required-entry" id="ebanx_cc_name" name="ebanx[cc_name]" value="" autocomplete="off">
+          <input type="text" title="Name on Card" class="input-text required-entry" id="ebanx_cc_name" name="ebanx[cc_name]"
+            value="<?php echo isset($_POST['ebanx']['cc_name']) ? $_POST['ebanx']['cc_name'] : '' ?>" autocomplete="off">
         </div>
       </li>
 
       <li class="ebanx-cc-field">
         <label for="ebanx_cc_number" class="required ">Credit Card Number</label>
         <div class="input-box">
-          <input type="text" id="ebanx_cc_number" name="ebanx[cc_number]" title="Credit Card Number" class="input-text required-entry validate-cc-ebanx validate-length minimum-length-12 maximum-length-19" value="" autocomplete="off">
+          <input type="text" id="ebanx_cc_number" name="ebanx[cc_number]" title="Credit Card Number"
+            class="input-text required-entry validate-cc-ebanx validate-length minimum-length-12 maximum-length-19"
+            value="<?php echo isset($_POST['ebanx']['cc_number']) ? $_POST['ebanx']['cc_number'] : '' ?>" autocomplete="off">
         </div>
       </li>
 
       <li class="ebanx-cc-field">
         <label for="ebanx_cc_cvv" class="required">Credit Card CVV</label>
         <div class="input-box">
-          <input type="text" id="ebanx_cc_cvv" name="ebanx[cc_cvv]" title="Credit Card CVV" class="cvv input-text validate-length minimum-length-3 maximum-length-4" value="" autocomplete="off">
+          <input type="text" id="ebanx_cc_cvv" name="ebanx[cc_cvv]" title="Credit Card CVV"
+          class="cvv input-text validate-length minimum-length-3 maximum-length-4"
+            value="<?php echo isset($_POST['ebanx']['cc_cvv']) ? $_POST['ebanx']['cc_cvv'] : '' ?>" autocomplete="off">
         </div>
       </li>
 

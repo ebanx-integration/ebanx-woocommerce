@@ -42,10 +42,12 @@ function ebanx_router()
   if (preg_match('/ebanx\/return\/.*/', $request_url))
   {
     ebanx_return_response();
+    exit;
   }
   else if (preg_match('/ebanx\/notify\/.*/', $request_url))
   {
     ebanx_notify_response();
+    exit;
   }
 }
 
@@ -57,34 +59,54 @@ function ebanx_notify_response()
 {
   $ebanxWC = new WC_Gateway_Ebanx();
 
-  $hashes = explode(',', $_POST['hash_codes']);
+  $hashes = isset($_REQUEST['hash_codes']) ? $_REQUEST['hash_codes'] : null;
+
+  if (!isset($hashes))
+  {
+    echo 'NOK: no hashes were sent.';
+    return;
+  }
+
+  $hashes = explode(',', $hashes);
 
   foreach ($hashes as $hash)
   {
-    $response = \Ebanx\Ebanx::doQuery(array('hash' => $hash));
-
-    if (isset($response->status) && $response->status == 'SUCCESS')
+    try
     {
-      $orderId = (int) $response->payment->merchant_payment_code;
-      $order = new WC_Order($orderId);
+      $response = \Ebanx\Ebanx::doQuery(array('hash' => $hash));
 
-      if ($response->payment->status == 'CA')
+      if (isset($response->status) && $response->status == 'SUCCESS')
       {
-        $order->update_status('cancelled', 'Payment cancelled via IPN.');
-      }
-      elseif ($response->payment->status == 'CO')
-      {
-        $order->add_order_note(__('EBANX payment completed, Hash: '.$response->payment->hash, 'woocommerce'));
-        $order->payment_complete();
-      }
-      elseif ($response->payment->status == 'OP')
-      {
+        $orderId = (int) $response->payment->merchant_payment_code;
+        $order = new WC_Order($orderId);
 
+        if ($order)
+        {
+          if ($response->payment->status == 'CA')
+          {
+            $order->update_status('cancelled', 'Payment cancelled via IPN.');
+            echo "OK: Payment {$hash} was cancelled via IPN";
+          }
+          elseif ($response->payment->status == 'CO')
+          {
+            $order->add_order_note(__('EBANX payment completed, Hash: '.$response->payment->hash, 'woocommerce'));
+            $order->payment_complete();
+            echo "OK: Payment {$hash} was completed";
+          }
+          elseif ($response->payment->status == 'OP' || $response->payment->status == 'PE')
+          {
+            echo "SKIP: Payment {$hash} is pending.";
+          }
+        }
+        else
+        {
+          echo "NOK: payment {$hash} was not found.";
+        }
       }
-      elseif ($response->payment->status == 'PE')
-      {
-        $order->update_status('pending', 'Payment pending via IPN.');
-      }
+    }
+    catch (Exception $e)
+    {
+      echo "NOK: payment {$hash} threw an exception => " . $e->getMessage();
     }
   }
 
