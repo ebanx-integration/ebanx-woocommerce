@@ -263,32 +263,40 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
         }
     }
 
-    $response = \Ebanx\Ebanx::doRequest($params);
-
-    if ($response->status == 'SUCCESS')
+    try
     {
-      if ($_POST['ebanx']['method'] == 'boleto')
-      {
-        $boletoUrl = $response->payment->boleto_url;
-        $orderUrl  = $this->get_return_url($order);
+      $response = \Ebanx\Ebanx::doRequest($params);
 
-        $tplDir = dirname(__FILE__) . '/template/';
-
-        $template = file_get_contents($tplDir . 'boleto.php');
-        echo eval(' ?>' . $template . '<?php ');
-      }
-      else if ($_POST['ebanx']['method'] == 'tef')
+      if ($response->status == 'SUCCESS')
       {
-        wp_redirect($response->redirect_url);
+        if ($_POST['ebanx']['method'] == 'boleto')
+        {
+          $boletoUrl = $response->payment->boleto_url;
+          $orderUrl  = $this->get_return_url($order);
+
+          $tplDir = dirname(__FILE__) . '/template/';
+
+          $template = file_get_contents($tplDir . 'boleto.php');
+          echo eval(' ?>' . $template . '<?php ');
+        }
+        else if ($_POST['ebanx']['method'] == 'tef')
+        {
+          wp_redirect($response->redirect_url);
+        }
+        else
+        {
+          wp_redirect($this->get_return_url($order));
+        }
       }
       else
       {
-        wp_redirect($this->get_return_url($order));
+        $_SESSION['ebanxError'] = $response->status_message;
+        $this->_renderCheckout($order_id);
       }
     }
-    else
+    catch (Exception $e)
     {
-      $_SESSION['ebanxError'] = $response->status_message;
+      $_SESSION['ebanxError'] = $e->getMessage();
       $this->_renderCheckout($order_id);
     }
   }
