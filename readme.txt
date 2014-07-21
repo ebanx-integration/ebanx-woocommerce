@@ -4,7 +4,7 @@ Donate link: http://ebanx.com/
 Tags: ebanx, woocommerce, payment
 Requires at least: 3.7.0
 Tested up to: 3.9.1
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: BSD
 License URI: http://opensource.org/licenses/BSD-3-Clause
 
@@ -38,7 +38,9 @@ How to install the plugin:
 6. That's all!
 
 == Changelog ==
-= 1.2.0=
+= 1.2.1 =
+* fixed wrong checkout params
+= 1.2.0 =
 * Improved error handling
 = 1.1.0 =
 * Added support to the Direct API

@@ -25,6 +25,7 @@ git clone --recursive https://github.com/ebanx/ebanx-woocommerce.git
 5. That's all!
 
 ## Changelog
+* 1.2.1: fixed wrong checkout params
 * 1.2.0: improved error handling
 * 1.1.0: added support for the Direct API
 * 1.0.5: updated EBANX library

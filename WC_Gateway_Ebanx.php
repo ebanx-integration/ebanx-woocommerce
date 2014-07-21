@@ -209,8 +209,10 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
 
     $order = new WC_Order($order_id);
 
-    $postBdate    = $_POST['ebanx']['birth_day'] . '/' . $_POST['ebanx']['birth_month'] . '/' . $_POST['ebanx']['birth_year'];
-    $cpf          = isset($order->billing_cpf) ? $order->billing_cpf : $_POST['ebanx_cpf'];
+    $postBdate    = str_pad($_POST['ebanx']['birth_day'], 2, '0', STR_PAD_LEFT) . '/' .
+                    str_pad($_POST['ebanx']['birth_month'], 2, '0', STR_PAD_LEFT) . '/' .
+                    str_pad($_POST['ebanx']['birth_year'],   2, '0', STR_PAD_LEFT);
+    $cpf          = isset($order->billing_cpf) ? $order->billing_cpf : $_POST['ebanx']['cpf'];
     $birthDate    = isset($order->billing_birthdate) ? $order->billing_birthdate : $postBdate;
     $streetNumber = isset($order->billing_number) ? $order->billing_number : '1';
 
