@@ -25,6 +25,7 @@ git clone --recursive https://github.com/ebanx/ebanx-woocommerce.git
 5. That's all!
 
 ## Changelog
+* 1.5.0: implemented client side form validation, added Hipercard
 * 1.4.0: localized error messages
 * 1.3.0: updated payment methods image
 * 1.2.1: fixed wrong checkout params

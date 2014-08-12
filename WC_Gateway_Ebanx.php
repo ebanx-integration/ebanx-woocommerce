@@ -158,7 +158,13 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
    */
   public function process_payment($order_id)
   {
+    global $woocommerce;
+
     $order = new WC_Order($order_id);
+
+    // Clear cart
+    $woocommerce->cart->empty_cart();
+
     return array(
       'result'   => 'success',
       'redirect' => add_query_arg('order', $order->id, add_query_arg('key', $order->order_key, get_permalink(woocommerce_get_page_id('pay'))))
@@ -174,18 +180,23 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     echo $this->generate_ebanx_form($order);
   }
 
+  protected function getAssetPath($filename)
+  {
+    return dirname(__FILE__) . '/assets/' . $filename;
+  }
+
   protected function _renderCheckout($order_id)
   {
     global $woocommerce;
 
     $order = new WC_Order($order_id);
 
-    $tplDir = dirname(__FILE__) . '/template/';
+    $tplDir = dirname(__FILE__) . '/view/';
 
     $template = file_get_contents($tplDir . 'checkout.php');
     echo eval(' ?>' . $template . '<?php ');
 
-    $jsCode = file_get_contents($tplDir . 'checkout.js');
+    $jsCode = file_get_contents($this->getAssetPath('checkout.js'));
     $woocommerce->add_inline_js($jsCode);
 
   }
@@ -276,7 +287,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           $boletoUrl = $response->payment->boleto_url;
           $orderUrl  = $this->get_return_url($order);
 
-          $tplDir = dirname(__FILE__) . '/template/';
+          $tplDir = dirname(__FILE__) . '/view/';
 
           $template = file_get_contents($tplDir . 'boleto.php');
           echo eval(' ?>' . $template . '<?php ');
@@ -326,7 +337,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       , "BP-DR-17" => "O email informado é inválido"
       , "BP-DR-18" => "O cliente está suspenso no EBANX"
       , "BP-DR-19" => "É necessário informar a data de nascimento"
-      , "BP-DR-20" => "A data de nascimento deve estar no formato dd/mm/aaaa"
+      , "BP-DR-20" => "É necessário informar a data de nascimento"
       , "BP-DR-21" => "É preciso ser maior de 16 anos"
       , "BP-DR-22" => "É necessário informar um CPF ou CNPJ"
       , "BP-DR-23" => "O CPF informado não é válido"
@@ -354,6 +365,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       , "BP-DR-47" => "A conta bancário deve conter no máximo 10 caracteres"
       , "BP-DR-48" => "É necessário informar os dados do cartão de crédito"
       , "BP-DR-49" => "É necessário informar o número do cartão de crédito"
+      , "BP-DR-50" => "É necessário selecionar o método de pagamento"
       , "BP-DR-51" => "É necessário informar o nome do titular do cartão de crédito"
       , "BP-DR-52" => "O nome do titular do cartão deve conter no máximo 50 caracteres"
       , "BP-DR-54" => "É necessário informar o CVV do cartão de crédito"

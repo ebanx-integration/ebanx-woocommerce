@@ -142,4 +142,102 @@ jQuery(document).ready(function() {
     ccNumber.onchange  = updateCCIssuer;
     ccNumber.oninput   = updateCCIssuer;
   }
+
+  /**
+   * Validates a credit card number
+   * https://gist.github.com/ShirtlessKirk/2134376
+   * @param  string cardNumber
+   * @return boolean
+   */
+  function luhnCheck(cardNumber) {
+    var cardNumber = cardNumber.replace(/\D/g, '')
+      , len = cardNumber.length
+      , mul = 0
+      , prodArr = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 2, 4, 6, 8, 1, 3, 5, 7, 9]]
+      , sum = 0;
+
+    while (len--) {
+        sum += prodArr[mul][parseInt(cardNumber.charAt(len), 10)];
+        mul ^= 1;
+    }
+
+    return sum % 10 === 0 && sum > 0;
+  };
+
+  /**
+   * Validates the EBANX checkout form data
+   * @return boolean
+   */
+  $('#ebanx-checkout-form').on('submit', function() {
+    var cpf    = $('#ebanx_cpf').val()
+      , bDay   = $('#ebanx_birth_day').val()
+      , bMonth = $('#ebanx_birth_month').val()
+      , bYear  = $('#ebanx_birth_year').val()
+      , paymentMethod = $('input[name="ebanx[method]"]:checked');
+
+      if (!cpf || !validateCpf(cpf)) {
+        alert('O CPF digitado não é válido.');
+        return false;
+      }
+
+      if (!paymentMethod) {
+        alert('É necessário escolher o método de pagamento.');
+        return false;
+      }
+
+      if (!bDay || !bMonth || !bYear) {
+        alert('É necessário informar a data de nascimento.');
+        return false;
+      }
+
+      // Validate TEF payments
+      if (paymentMethod.val() == 'tef') {
+        var bank = $('#ebanx_tef_bank').val();
+
+        if (!bank) {
+          alert('É necessário escolher o banco para fazer a transferência.');
+          return false;
+        }
+      }
+
+      // Validate credit card
+      if (paymentMethod.val() == 'creditcard') {
+        var ccName = $('#ebanx_cc_name').val()
+          , ccNumber = $('#ebanx_cc_number').val()
+          , ccCVV = $('#ebanx_cc_cvv').val()
+          , ccScheme = $('#ebanx_cc_type').val()
+          , ccExpMonth = $('#ebanx_cc_expiration_month').val()
+          , ccExpYear = $('#ebanx_cc_expiration_year').val();
+
+        if (ccName.length == 0) {
+          alert('É necessário informar o nome do titular do cartão.');
+          return false;
+        }
+
+        if (ccNumber.length == 0) {
+          alert('É necessário informar o número do cartão.');
+          return false;
+        }
+
+        if (!luhnCheck(ccNumber)) {
+          alert('O número do cartão é inválido.');
+          return false;
+        }
+
+        if (ccCVV.length < 3 || ccCVV.length > 4) {
+          alert('O código de segurança deve conter 3 ou 4 dígitos.');
+          return false;
+        }
+
+        if (!ccScheme) {
+          alert('É necessário selecionar a bandeira do cartão.');
+          return false;
+        }
+
+        if (ccExpMonth.length == 0 || ccExpYear.length == 0) {
+          alert('É necessário informar a data de validade do cartão.');
+          return false;
+        }
+      }
+  });
 });
