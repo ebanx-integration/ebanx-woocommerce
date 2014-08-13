@@ -4,7 +4,7 @@ Donate link: http://ebanx.com/
 Tags: ebanx, woocommerce, payment
 Requires at least: 3.7.0
 Tested up to: 3.9.1
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: BSD
 License URI: http://opensource.org/licenses/BSD-3-Clause
 
@@ -38,8 +38,11 @@ How to install the plugin:
 6. That's all!
 
 == Changelog ==
+= 1.5.1 =
+* fixed clean cart code
 = 1.5.0 =
-* implemented client side form validation, added Hipercard
+* implemented client side form validation
+* added Hipercard
 = 1.4.0 =
 * localized error messages
 = 1.3.0 =

@@ -158,12 +158,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
    */
   public function process_payment($order_id)
   {
-    global $woocommerce;
-
-    $order = new WC_Order($order_id);
-
-    // Clear cart
-    $woocommerce->cart->empty_cart();
+   $order = new WC_Order($order_id);
 
     return array(
       'result'   => 'success',
@@ -282,6 +277,9 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
 
       if ($response->status == 'SUCCESS')
       {
+        // Clear cart
+        $woocommerce->cart->empty_cart();
+        
         if ($_POST['ebanx']['method'] == 'boleto')
         {
           $boletoUrl = $response->payment->boleto_url;
