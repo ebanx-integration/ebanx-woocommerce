@@ -218,8 +218,8 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     $postBdate    = str_pad($_POST['ebanx']['birth_day'], 2, '0', STR_PAD_LEFT) . '/' .
                     str_pad($_POST['ebanx']['birth_month'], 2, '0', STR_PAD_LEFT) . '/' .
                     str_pad($_POST['ebanx']['birth_year'],   2, '0', STR_PAD_LEFT);
-    $cpf          = isset($order->billing_cpf) ? $order->billing_cpf : $_POST['ebanx']['cpf'];
-    $birthDate    = isset($order->billing_birthdate) ? $order->billing_birthdate : $postBdate;
+    $cpf          = $_POST['ebanx']['cpf'];
+    $birthDate    = $postBdate;
     $streetNumber = isset($order->billing_number) ? $order->billing_number : '1';
 
     $params = array(
@@ -370,8 +370,8 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       , "BP-DR-55" => "O CVV deve conter no máximo 4 caracteres"
       , "BP-DR-56" => "É necessário informar a data de venciomento do cartão de crédito"
       , "BP-DR-57" => "A data de vencimento do cartão de crédito deve estar no formato dd/mm/aaaa"
-      , "BP-DR-58" => "A data de vencimento do cartão é inválida"
-      , "BP-DR-59" => "A data de vencimento do cartão é inválida"
+      , "BP-DR-58" => "A data de vencimento do boleto é inválida"
+      , "BP-DR-59" => "A data de vencimento do boleto é menor do que o permitido"
       , "BP-DR-61" => "Não foi possível criar um token para este cartão de crédito"
       , "BP-DR-62" => "Pagamentos recorrentes não estão habilitados para este merchant"
       , "BP-DR-63" => "Token não encontrado para este adquirente"
