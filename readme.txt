@@ -4,7 +4,7 @@ Donate link: http://ebanx.com/
 Tags: ebanx, woocommerce, payment
 Requires at least: 3.7.0
 Tested up to: 3.9.1
-Stable tag: 1.5.2
+Stable tag: 1.6.0
 License: BSD
 License URI: http://opensource.org/licenses/BSD-3-Clause
 
@@ -38,6 +38,8 @@ How to install the plugin:
 6. That's all!
 
 == Changelog ==
+= 1.6.0 =
+* EBANX checkout gets CPF and birthdate from extra parameters plugin
 = 1.5.2 =
 * fixed checkout parameters usage
 = 1.5.1 =

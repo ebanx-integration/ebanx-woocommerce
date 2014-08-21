@@ -184,7 +184,28 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
   {
     global $woocommerce;
 
+    // Loads the current order
     $order = new WC_Order($order_id);
+
+    $ebanxCpf = (isset($order->billing_cpf)) ? $order->billing_cpf: '';
+
+    if (isset($order->billing_birthdate))
+    {
+      $dateParts = explode('/', $order->billing_birthdate);
+      $birthDate = array(
+          'day'   => $dateParts[0]
+        , 'month' => $dateParts[1]
+        , 'year'  => $dateParts[2]
+      );
+    }
+    else
+    {
+      $birthDate = array(
+          'day'   => ($_POST['ebanx']['birth_day']) ?: 0
+        , 'month' => ($_POST['ebanx']['birth_month']) ?: 0
+        , 'year'  => ($_POST['ebanx']['birth_year']) ?: 0
+      );
+    }
 
     $tplDir = dirname(__FILE__) . '/view/';
 
@@ -279,7 +300,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       {
         // Clear cart
         $woocommerce->cart->empty_cart();
-        
+
         if ($_POST['ebanx']['method'] == 'boleto')
         {
           $boletoUrl = $response->payment->boleto_url;
