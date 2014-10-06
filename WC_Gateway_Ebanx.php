@@ -47,10 +47,15 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     $this->title               = $this->get_option('title');
     $this->description         = $this->get_option('description');
     $this->merchant_key        = $this->get_option('merchant_key');
-    $this->test_mode           = $this->get_option('test_mode');
-    $this->enable_boleto       = $this->get_option('method_boleto') == 'yes';
-    $this->enable_tef          = $this->get_option('method_tef') == 'yes';
-    $this->enable_cc           = $this->get_option('method_cc') == 'yes';
+    $this->test_mode           = ($this->get_option('test_mode') == 'yes');
+    $this->enable_boleto       = $this->paymentMethodisEnabled('boleto');
+    $this->enable_tef          = $this->paymentMethodisEnabled('tef');
+    $this->enable_cc           = $this->paymentMethodisEnabled('creditcards');
+    $this->enable_pagoefectivo = $this->paymentMethodisEnabled('pagoefectivo');
+    $this->enable_installments = $this->get_option('enable_installments') == 'yes';
+    $this->max_installments    = intval($this->get_option('max_installments'));
+    $this->interest_mode       = $this->get_option('interest_mode');
+    $this->interest_rate       = floatval($this->get_option('interest_rate'));
 
     // Images
     $this->icon_boleto = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/images/icon_boleto.png';
@@ -60,14 +65,24 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     // Set EBANX configs
     \Ebanx\Config::set(array(
         'integrationKey' => $this->merchant_key
-      , 'testMode'       => ($this->test_mode == 'yes')
+      , 'testMode'       => $this->test_mode
       , 'directMode'     => true
     ));
 
     add_action('woocommerce_update_options_payment_gateways_' . $this->id, array(&$this, 'process_admin_options'));
     add_action('woocommerce_receipt_ebanx', array(&$this, 'receipt_page'));
-    add_filter('woocommerce_after_order_notes', array(&$this, 'checkout_fields'));
     add_action('woocommerce_checkout_update_order_meta', array(&$this, 'checkout_fields_save'));
+  }
+
+  /**
+   * Checks if a payment method is enabled
+   * @param  string $paymentMethod The payment method name
+   * @return boolean
+   */
+  protected function paymentMethodisEnabled($paymentMethod)
+  {
+    $options = $this->get_option('payment_methods');
+    return in_array($paymentMethod, $options);
   }
 
   /**
@@ -109,25 +124,63 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
         'default' => 'yes',
         'description' => ''
       ),
-      'method_boleto' => array(
-        'title'   => __('Enable boleto', 'woocommerce'),
-        'type'    => 'checkbox',
-        'label'   => __('Enable boleto payments', 'woocommerce'),
-        'default' => 'yes',
-        'description' => ''
+      'payment_methods' => array(
+        'title'   => __('Enable payment methods', 'woocommerce'),
+        'type'    => 'multiselect',
+        'label'   => __('Enable payments methods for EBANX', 'woocommerce'),
+        'description' => '',
+        'default' => array('boleto', 'tef'),
+        'options' => array(
+          'boleto'       => 'Boleto',
+          'tef'          => 'Bank transfer',
+          'creditcards'  => 'Credit cards',
+          'pagoefectivo' => 'PagoEfectivo'
+        )
       ),
-      'method_tef' => array(
-        'title'   => __('Enable bank transfer', 'woocommerce'),
+      'enable_installments' => array(
+        'title'   => __('Enable installments', 'woocommerce'),
         'type'    => 'checkbox',
-        'label'   => __('Enable bank transfer payments', 'woocommerce'),
-        'default' => 'yes',
-        'description' => ''
-      ),
-      'method_cc' => array(
-        'title'   => __('Enable credit cards', 'woocommerce'),
-        'type'    => 'checkbox',
-        'label'   => __('Enable credit cards payments', 'woocommerce'),
+        'label'   => __('Enable installments for credit cards payments', 'woocommerce'),
         'default' => 'no',
+        'description' => ''
+      ),
+      'max_installments' => array(
+        'title'    => __('Maximum installments number', 'woocommerce'),
+        'type'     => 'select',
+        'default'  => '1',
+        'desc_tip' => true,
+        'description' => '',
+        'options' => array(
+          '1' => '1',
+          '2' => '2',
+          '3' => '3',
+          '4' => '4',
+          '5' => '5',
+          '6' => '6',
+          '7' => '7',
+          '8' => '8',
+          '9' => '9',
+          '10' => '10',
+          '11' => '11',
+          '12' => '12'
+        )
+      ),
+      'interest_mode' => array(
+        'title'    => __('Interest calculation method', 'woocommerce'),
+        'type'     => 'select',
+        'default'  => 'simple',
+        'desc_tip' => true,
+        'description' => '',
+        'options' => array(
+          'compound' => 'Compound interest',
+          'simple'   => 'Simple interest'
+        )
+      ),
+      'interest_rate' => array(
+        'title'    => __('Interest rate', 'woocommerce'),
+        'type'     => 'text',
+        'default'  => '0.00',
+        'desc_tip' => true,
         'description' => ''
       )
     );
@@ -144,13 +197,6 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     }
   }
 
-  /**
-   * Adds installments fields to the checkout page
-   */
-  public function checkout_fields($checkout)
-  {
-    global $woocommerce;
-  }
 
   /**
    * Process the payment and return the result
@@ -175,11 +221,21 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     echo $this->generate_ebanx_form($order);
   }
 
+  /**
+   * Returns the assets path
+   * @param  string $filename The asset name
+   * @return string
+   */
   protected function getAssetPath($filename)
   {
     return dirname(__FILE__) . '/assets/' . $filename;
   }
 
+  /**
+   * Renders the EBANX checkout page
+   * @param  int $order_id The order ID
+   * @return boolean
+   */
   protected function _renderCheckout($order_id)
   {
     global $woocommerce;
@@ -207,6 +263,9 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       );
     }
 
+    $installmentOptions = $this->calculateInstallmentOptions($order->order_total);
+    $orderCountry       = $order->billing_country;
+
     $tplDir = dirname(__FILE__) . '/view/';
 
     $template = file_get_contents($tplDir . 'checkout.php');
@@ -214,10 +273,33 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
 
     $jsCode = file_get_contents($this->getAssetPath('checkout.js'));
     $woocommerce->add_inline_js($jsCode);
-
   }
+
+  protected function calculateInstallmentOptions($orderTotal)
+  {
+    $options = array();
+    $options[1] = $orderTotal;
+
+    for ($i = 2; $i <= $this->max_installments; $i++)
+    {
+      $total = $this->calculateTotalWithInterest($orderTotal, $i);
+
+      // Enforce minimum 30 moneys for installments
+      if ($total / $i >= 30)
+      {
+        $options[$i] = $total;
+      }
+      else
+      {
+        break;
+      }
+    }
+
+    return $options;
+  }
+
   /**
-   * Generate the EBANX button link
+   * Generates the EBANX button link
    * @return string
    */
   public function generate_ebanx_form($order_id)
@@ -243,11 +325,14 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     $birthDate    = $postBdate;
     $streetNumber = isset($order->billing_number) ? $order->billing_number : '1';
 
+    // Append timestamp on test mode
+    $orderId = ($this->test_mode) ? $order_id . time() : $order_id;
+
     $params = array(
         'mode'      => 'full'
       , 'operation' => 'request'
       , 'payment'   => array(
-            'merchant_payment_code' => $order_id
+            'merchant_payment_code' => $orderId
           , 'amount_total'      => $order->order_total
           , 'currency_code'     => get_woocommerce_currency()
           , 'name'              => $order->billing_first_name . ' ' . $order->billing_last_name
@@ -259,9 +344,9 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           , 'city'              => $order->billing_city
           , 'state'             => $order->billing_state
           , 'zipcode'           => $order->billing_postcode
-          , 'country'           => 'br'
-          , 'phone_number'      =>  $order->billing_phone
-          , 'payment_type_code' => 'boleto'
+          , 'country'           => $order->billing_country
+          , 'phone_number'      => $order->billing_phone
+          , 'payment_type_code' => $_POST['ebanx']['method']
         )
     );
 
@@ -278,6 +363,18 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           , 'card_cvv'      => $_POST['ebanx']['cc_cvv']
           , 'card_due_date' => $ccExpiration
         );
+
+        // If has installments, adjust total
+        if (isset($_POST['ebanx']['cc_installments']))
+        {
+          $installments = intval($_POST['ebanx']['cc_installments']);
+
+          if ($installments > 1)
+          {
+            $params['payment']['instalments']  = $installments;
+            $params['payment']['amount_total'] = $this->calculateTotalWithInterest($order->order_total, $installments);
+          }
+        }
     }
 
     // For TEF and Bradesco, add redirect another parameter
@@ -309,6 +406,17 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           $tplDir = dirname(__FILE__) . '/view/';
 
           $template = file_get_contents($tplDir . 'boleto.php');
+          echo eval(' ?>' . $template . '<?php ');
+        }
+        else if ($_POST['ebanx']['method'] == 'pagoefectivo')
+        {
+          $cipUrl   = $response->payment->cip_url;
+          $cipCode  = $response->payment->cip_code;
+          $orderUrl = $this->get_return_url($order);
+
+          $tplDir = dirname(__FILE__) . '/view/';
+
+          $template = file_get_contents($tplDir . 'pagoefectivo.php');
           echo eval(' ?>' . $template . '<?php ');
         }
         else if ($_POST['ebanx']['method'] == 'tef')
@@ -437,5 +545,28 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     }
 
     return 'Ocorreu um erro desconhecido. Por favor contacte o administrador.';
+  }
+
+  /**
+   * Calculates the order total with interest
+   * @param  float  $orderTotal   The order total
+   * @param  int    $installments The installments number
+   * @return float
+   */
+  protected function calculateTotalWithInterest($orderTotal, $installments)
+  {
+    switch ($this->interest_mode) {
+      case 'compound':
+        $total = $orderTotal * pow((1.0 + floatval($this->interest_rate / 100)), $installments);
+        break;
+      case 'simple':
+        $total = (floatval($this->interest_rate / 100) * floatval($orderTotal) * intval($installments)) + floatval($orderTotal);
+        break;
+      default:
+        throw new Exception("Interest mode {$interestMode} is unsupported.");
+        break;
+    }
+
+    return $total;
   }
 }

@@ -59,7 +59,7 @@ jQuery(document).ready(function() {
     }
   }
 
-  $('#ebanx_method_boleto, #ebanx_method_creditcard, #ebanx_method_tef').on('click', function() {
+  $('#ebanx_method_boleto, #ebanx_method_creditcard, #ebanx_method_tef, #ebanx_method_pagoefectivo').on('click', function() {
     toggleCCFields();
     toggleTEFFields();
   });
@@ -131,6 +131,8 @@ jQuery(document).ready(function() {
       toggleType('elo');
     } else if (ccNumber.match(/^50[0-9]{14,17}$/)) {
       toggleType('aura');
+    } else if (ccNumber.match(/^(38|60)[0-9]{11,17}$/)) {
+      toggleType('hipercard');
     } else {
       toggleType('');
     }

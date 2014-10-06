@@ -32,52 +32,20 @@
 .ebanx-tef-field {
   display: none;
 }
-.ebanx-method {
+.ebanx-methods {
   overflow: hidden;
+  padding: 15px 20px;
+  background-color: #f2f2f2;
 }
-.ebanx-method .payment-method {
-  float: left;
-  display: block;
-  overflow: hidden;
-  width: 120px;
-  height: 130px;
-  margin: 0 20px 0 0;
-}
-.ebanx-method .payment-method input {
-  display: none;
-}
-#payment_ebanx_direct select {
-  color: #141412;
-  background-color: #fff;
-  border: 2px solid #d4d0ba;
-  padding: 5px;
-}
-.ebanx-method .payment-method label {
-  cursor: pointer;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  background-color: #fff;
-  width: 120px;
-  height: 130px;
-  padding: 20px;
-  text-align: center;
-  overflow: hidden;
-  margin: 0 !important;
-  display: block;
-  position: relative;
-}
-.ebanx-method .payment-method.active label,
-.ebanx-method .payment-method label:hover {
-  border-color: #f26624;
-  border-width: 2px;
-}
-.ebanx-method .payment-method label img {
-  margin: 0 auto 10px;
-}
-.ebanx-method .payment-method label .desc {
-  font-size: 13px;
-  line-height: 12px;
+.ebanx-methods ul {
   margin: 0;
+  padding: 0;
+}
+.ebanx-methods ul li {
+  margin: 5px 0 !important;
+}
+.ebanx-methods input {
+  margin: 2px 5px 0 0;
 }
 .ebanx-error {
   background-color: rgb(242, 222, 222);
@@ -170,40 +138,40 @@
 
     <li>
       <label for="payment-method" class="required">Método de pagamento</label>
-      <div class="input-box ebanx-method">
-        <?php if ($this->enable_boleto): ?>
-        <div class="payment-method active payment-method-toggle">
-          <input type="radio" name="ebanx[method]" id="ebanx_method_boleto" value="boleto" checked="checked" />
-          <label for="ebanx_method_boleto">
-            <img src="<?php echo $this->icon_boleto ?>">
-            <p class="desc">Boleto bancário</p>
-          </label>
-        </div>
-        <?php endif ?>
+      <div class="input-box ebanx-methods">
+        <ul>
+          <?php if ($this->enable_boleto && $orderCountry == 'BR'): ?>
+          <li class="payment-method active payment-method-toggle">
+            <input type="radio" name="ebanx[method]" id="ebanx_method_boleto" value="boleto" checked="checked" />
+            <label for="ebanx_method_boleto">Boleto bancário</label>
+          </li>
+          <?php endif ?>
 
-        <?php if ($this->enable_cc): ?>
-        <div class="payment-method payment-method-toggle">
-          <input type="radio" name="ebanx[method]" id="ebanx_method_creditcard" value="creditcard" />
-          <label for="ebanx_method_creditcard">
-            <img src="<?php echo $this->icon_cc ?>">
-            <p class="desc">Cartão de crédito</p>
-          </label>
-        </div>
-        <?php endif ?>
+          <?php if ($this->enable_cc && $orderCountry == 'BR'): ?>
+          <li class="payment-method payment-method-toggle">
+            <input type="radio" name="ebanx[method]" id="ebanx_method_creditcard" value="creditcard" />
+            <label for="ebanx_method_creditcard">Cartão de crédito</label>
+          </li>
+          <?php endif ?>
 
-        <?php if ($this->enable_tef): ?>
-        <div class="payment-method payment-method-toggle">
-          <input type="radio" name="ebanx[method]" id="ebanx_method_tef" value="tef" />
-          <label for="ebanx_method_tef">
-            <img src="<?php echo $this->icon_tef ?>">
-            <p class="desc">Trasferência bancária</p>
-          </label>
-        </div>
-        <?php endif ?>
+          <?php if ($this->enable_pagoefectivo && $orderCountry == 'PE'): ?>
+          <li class="payment-method payment-method-toggle">
+            <input type="radio" name="ebanx[method]" id="ebanx_method_pagoefectivo" value="pagoefectivo" />
+            <label for="ebanx_method_pagoefectivo">PagoEfectivo</label>
+          </li>
+          <?php endif ?>
+
+          <?php if ($this->enable_tef && $orderCountry == 'BR'): ?>
+          <li class="payment-method payment-method-toggle">
+            <input type="radio" name="ebanx[method]" id="ebanx_method_tef" value="tef" />
+            <label for="ebanx_method_tef">Trasferência bancária</label>
+          </li>
+          <?php endif ?>
+        </ul>
       </div>
     </li>
 
-    <?php if ($this->enable_cc): ?>
+    <?php if ($this->enable_cc && $orderCountry == 'BR'): ?>
       <li class="ebanx-cc-field">
         <label for="ebanx_cc_name" class="required">Titular do cartão</label>
         <div class="input-box">
@@ -278,9 +246,24 @@
           </div>
         </div>
       </li>
+
+      <?php if ($this->enable_installments): ?>
+        <li class="ebanx-cc-field">
+          <label for="ebanx_cc_installments" class="required">Parcelas</label>
+          <div class="input-box">
+            <div class="v-fix">
+              <select id="ebanx_cc_installments" name="ebanx[cc_installments]" class="required-entry" autocomplete="off">
+                <?php foreach ($installmentOptions as $number => $total): ?>
+                  <option value="<?php echo $number ?>"><?php echo $number ?>x <?php echo get_woocommerce_currency_symbol() . money_format('%i', $total / $number) ?></option>
+                <?php endforeach ?>
+              </select>
+            </div>
+          </div>
+        </li>
+      <? endif ?>
     <?php endif ?>
 
-    <?php if ($this->enable_tef): ?>
+    <?php if ($this->enable_tef && $orderCountry == 'BR'): ?>
       <li class="ebanx-tef-field">
         <label for="ebanx_tef_bank" class="required">Banco</label>
         <div class="input-box">
