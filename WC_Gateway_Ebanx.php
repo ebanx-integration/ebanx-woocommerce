@@ -333,6 +333,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       , 'operation' => 'request'
       , 'payment'   => array(
             'merchant_payment_code' => $orderId
+          , 'order-number'      => $order_id
           , 'amount_total'      => $order->order_total
           , 'currency_code'     => get_woocommerce_currency()
           , 'name'              => $order->billing_first_name . ' ' . $order->billing_last_name

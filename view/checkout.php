@@ -91,7 +91,7 @@
 <form method="POST" id="ebanx-checkout-form">
   <ul class="form-list" id="payment_ebanx_direct">
     <li>
-      <label for="ebanx_cpf" class="required">CPF</label>
+      <label for="ebanx_cpf" class="required">CPF/DNI</label>
       <div class="input-box">
         <input type="text" title="CPF" class="input-text required-entry validate-cpf" id="ebanx_cpf" name="ebanx[cpf]"
         value="<?php echo isset($_POST['ebanx']['cpf']) ? $_POST['ebanx']['cpf'] : $ebanxCpf ?>">
