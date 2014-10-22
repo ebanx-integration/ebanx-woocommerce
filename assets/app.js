@@ -2,7 +2,7 @@ jQuery(document).ready(function() {
   var ebanxRadio      = document.getElementById('payment_method_ebanx')
     , ebanxDirectForm = document.getElementById('payment_ebanx_direct')
     , fieldIds = [
-        'ebanx_cpf'
+        'ebanx_document'
       , 'ebanx_cc_name'
       , 'ebanx_cc_type'
       , 'ebanx_cc_number'
@@ -171,13 +171,13 @@ jQuery(document).ready(function() {
    * @return boolean
    */
   $('#ebanx-checkout-form').on('submit', function() {
-    var cpf    = $('#ebanx_cpf').val()
+    var tinDoc = $('#ebanx_document').val()
       , bDay   = $('#ebanx_birth_day').val()
       , bMonth = $('#ebanx_birth_month').val()
       , bYear  = $('#ebanx_birth_year').val()
       , paymentMethod = $('input[name="ebanx[method]"]:checked');
 
-      if (!cpf || !validateCpf(cpf)) {
+      if (!tinDoc) {
         alert('O CPF digitado não é válido.');
         return false;
       }

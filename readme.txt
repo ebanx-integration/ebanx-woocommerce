@@ -4,7 +4,7 @@ Donate link: http://ebanx.com/
 Tags: ebanx, woocommerce, payment
 Requires at least: 3.7.0
 Tested up to: 3.9.1
-Stable tag: 1.7.0
+Stable tag: 1.8.0
 License: BSD
 License URI: http://opensource.org/licenses/BSD-3-Clause
 
@@ -38,6 +38,8 @@ How to install the plugin:
 6. That's all!
 
 == Changelog ==
+= 1.8.0 =
+* different checkout pages for each country, partial localization
 = 1.7.0 =
 * installments for credit cards, PagoEfectivo, translations
 = 1.6.1 =

@@ -1,84 +1,3 @@
-<style type="text/css">
-#payment_ebanx_direct {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-#payment_ebanx_direct li {
-  margin: 0 0 15px 0;
-  overflow: hidden;
-}
-#payment_ebanx_direct li.buttons {
-  margin: 25px 0 0 0;
-  overflow: hidden;
-}
-#payment_ebanx_direct li > label {
-  font-weight: bold;
-  display: inline-block;
-  margin: 0 0 5px 0;
-}
-.ebanx-birth {
-  overflow: hidden;
-}
-#payment_ebanx_direct .v-fix {
-  float: left;
-  display: inline-block;
-  margin: 0 5px 0 0;
-}
-#payment_ebanx_direct .cvv {
-  width: 50px;
-}
-.ebanx-cc-field,
-.ebanx-tef-field {
-  display: none;
-}
-.ebanx-methods {
-  overflow: hidden;
-  padding: 15px 20px;
-  background-color: #f2f2f2;
-}
-.ebanx-methods ul {
-  margin: 0;
-  padding: 0;
-}
-.ebanx-methods ul li {
-  margin: 5px 0 !important;
-}
-.ebanx-methods input {
-  margin: 2px 5px 0 0;
-}
-.ebanx-error {
-  background-color: rgb(242, 222, 222);
-  border-bottom-color: rgb(235, 204, 209);
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
-  border-bottom-style: solid;
-  border-bottom-width: 1px;
-  border-left-color: rgb(235, 204, 209);
-  border-left-style: solid;
-  border-left-width: 1px;
-  border-right-color: rgb(235, 204, 209);
-  border-right-style: solid;
-  border-right-width: 1px;
-  border-top-color: rgb(235, 204, 209);
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  border-top-style: solid;
-  border-top-width: 1px;
-  box-sizing: border-box;
-  color: rgb(169, 68, 66);
-  display: block;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-top: 15px;
-  }
-</style>
-
 <p>Por favor preencha os campos abaixo para finalizar o pagamento:</p>
 
 <?php if (isset($_SESSION['ebanxError'])): ?>
@@ -91,10 +10,10 @@
 <form method="POST" id="ebanx-checkout-form">
   <ul class="form-list" id="payment_ebanx_direct">
     <li>
-      <label for="ebanx_cpf" class="required">CPF/DNI</label>
+      <label for="ebanx_cpf" class="required">CPF</label>
       <div class="input-box">
-        <input type="text" title="CPF" class="input-text required-entry validate-cpf" id="ebanx_cpf" name="ebanx[cpf]"
-        value="<?php echo isset($_POST['ebanx']['cpf']) ? $_POST['ebanx']['cpf'] : $ebanxCpf ?>">
+        <input type="text" title="CPF" class="input-text required-entry validate-cpf" id="ebanx_document" name="ebanx[document]"
+        value="<?php echo isset($_POST['ebanx']['document']) ? $_POST['ebanx']['document'] : $ebanxDocument ?>">
       </div>
     </li>
 
@@ -151,13 +70,6 @@
           <li class="payment-method payment-method-toggle">
             <input type="radio" name="ebanx[method]" id="ebanx_method_creditcard" value="creditcard" />
             <label for="ebanx_method_creditcard">Cartão de crédito</label>
-          </li>
-          <?php endif ?>
-
-          <?php if ($this->enable_pagoefectivo && $orderCountry == 'PE'): ?>
-          <li class="payment-method payment-method-toggle">
-            <input type="radio" name="ebanx[method]" id="ebanx_method_pagoefectivo" value="pagoefectivo" />
-            <label for="ebanx_method_pagoefectivo">PagoEfectivo</label>
           </li>
           <?php endif ?>
 

@@ -25,6 +25,7 @@ git clone --recursive https://github.com/ebanx/ebanx-woocommerce.git
 5. That's all!
 
 ## Changelog
+* 1.8.0: different checkout pages for each country, partial localization
 * 1.7.0: installments for credit cards, PagoEfectivo, translations
 * 1.6.1: updated library version to support new API endpoint.
 * 1.6.0: EBANX checkout gets CPF and birthdate from extra parameters plugin
