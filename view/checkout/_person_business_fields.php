@@ -23,10 +23,10 @@
 </li>
 
 <li>
-  <label for="ebanx_birth_day" class="required">Data de nascimento do responsável</label>
+  <label for="ebanx_responsible_birth_day" class="required">Data de nascimento do responsável</label>
   <div class="input-box ebanx-birth">
     <div class="v-fix">
-      <select id="ebanx_birth_day" name="ebanx[birth_day]" class="day required-entry" autocomplete="off">
+      <select id="ebanx_responsible_birth_day" name="ebanx[responsible_birth_day]" class="day required-entry" autocomplete="off">
         <option value="" selected="selected">Dia</option>
         <?php for ($i = 1; $i <= 31; $i++): ?>
           <option value="<?php echo $i ?>" <?php if ($birthDate['day'] == $i) echo 'selected'?>>
@@ -37,7 +37,7 @@
     </div>
 
     <div class="v-fix">
-      <select id="ebanx_birth_month" name="ebanx[birth_month]" class="month required-entry" autocomplete="off">
+      <select id="ebanx_responsible_birth_month" name="ebanx[responsible_birth_month]" class="month required-entry" autocomplete="off">
         <option value="" selected="selected">Mês</option>
         <?php for ($i = 1; $i <= 12; $i++): ?>
           <option value="<?php echo $i ?>" <?php if ($birthDate['month'] == $i) echo 'selected'?>>
@@ -48,7 +48,7 @@
     </div>
 
     <div class="v-fix">
-      <select id="ebanx_birth_year" name="ebanx[birth_year]" class="year required-entry" autocomplete="off">
+      <select id="ebanx_responsible_birth_year" name="ebanx[responsible_birth_year]" class="year required-entry" autocomplete="off">
         <option value="" selected="selected">Ano</option>
         <?php for ($i = date('Y') - 16; $i > 1920; $i--): ?>
           <option value="<?php echo $i ?>" <?php if ($birthDate['year'] == $i) echo 'selected'?>>

@@ -177,18 +177,8 @@ jQuery(document).ready(function() {
       , bYear  = $('#ebanx_birth_year').val()
       , paymentMethod = $('input[name="ebanx[method]"]:checked');
 
-      if (!tinDoc) {
-        alert('O CPF digitado não é válido.');
-        return false;
-      }
-
       if (!paymentMethod) {
         alert('É necessário escolher o método de pagamento.');
-        return false;
-      }
-
-      if (!bDay || !bMonth || !bYear) {
-        alert('É necessário informar a data de nascimento.');
         return false;
       }
 

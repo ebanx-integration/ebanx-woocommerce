@@ -275,11 +275,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     }
     else
     {
-      $birthDate = array(
-          'day'   => (isset($_POST['ebanx']['birth_day']))   ? $_POST['ebanx']['birth_day'] : 0
-        , 'month' => (isset($_POST['ebanx']['birth_month'])) ? $_POST['ebanx']['birth_month'] : 0
-        , 'year'  => (isset($_POST['ebanx']['birth_year']))  ? $_POST['ebanx']['birth_year'] : 0
-      );
+      $birthDate = $this->getBirthdateFromRequest();
     }
 
     $orderCountry       = $order->billing_country;
@@ -290,6 +286,40 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     $installmentOptions = $this->calculateInstallmentOptions($order->order_total);
 
     echo eval(' ?>' . $template . '<?php ');
+  }
+
+  /**
+   * Gets the birthdate from the payment request
+   * @return array
+   */
+  protected function getBirthdateFromRequest($formatDate = false)
+  {
+    // If person is business
+    if (isset($_POST['ebanx']['person_type']) && $_POST['ebanx']['person_type'] == 'business')
+    {
+      $date = array(
+          'day'   => (isset($_POST['ebanx']['responsible_birth_day']))   ? $_POST['ebanx']['responsible_birth_day'] : 0
+        , 'month' => (isset($_POST['ebanx']['responsible_birth_month'])) ? $_POST['ebanx']['responsible_birth_month'] : 0
+        , 'year'  => (isset($_POST['ebanx']['responsible_birth_year']))  ? $_POST['ebanx']['responsible_birth_year'] : 0
+      );
+    }
+    else
+    {
+      $date = array(
+          'day'   => (isset($_POST['ebanx']['birth_day']))   ? $_POST['ebanx']['birth_day'] : 0
+        , 'month' => (isset($_POST['ebanx']['birth_month'])) ? $_POST['ebanx']['birth_month'] : 0
+        , 'year'  => (isset($_POST['ebanx']['birth_year']))  ? $_POST['ebanx']['birth_year'] : 0
+      );
+    }
+
+    if ($formatDate)
+    {
+      $date = str_pad($date['day'], 2, '0', STR_PAD_LEFT) . '/' .
+              str_pad($date['month'], 2, '0', STR_PAD_LEFT) . '/' .
+              str_pad($date['year'],   2, '0', STR_PAD_LEFT);
+    }
+
+    return $date;
   }
 
   /**
@@ -358,7 +388,6 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
                     str_pad($_POST['ebanx']['birth_month'], 2, '0', STR_PAD_LEFT) . '/' .
                     str_pad($_POST['ebanx']['birth_year'],   2, '0', STR_PAD_LEFT);
     $ebanxDocument = $_POST['ebanx']['document'];
-    $birthDate     = $postBdate;
     $streetNumber  = isset($order->billing_number) ? $order->billing_number : '1';
     $paymentMethod = (isset($_POST['ebanx']['method'])) ? $_POST['ebanx']['method'] : '';
     $countryCode   = $order->billing_country;
@@ -376,7 +405,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           , 'currency_code'     => get_woocommerce_currency()
           , 'name'              => $order->billing_first_name . ' ' . $order->billing_last_name
           , 'email'             => $order->billing_email
-          , 'birth_date'        => $birthDate
+          , 'birth_date'        => $this->getBirthdateFromRequest(true)
           , 'document'          => $ebanxDocument
           , 'address'           => $order->billing_address_1
           , 'street_number'     => $streetNumber
@@ -399,7 +428,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
         $params['payment']['responsible'] = array(
             'name'       => $_POST['ebanx']['responsible_name']
           , 'document'   => $_POST['ebanx']['responsible_document']
-          , 'birth_date' => $birthDate
+          , 'birth_date' => $this->getBirthdateFromRequest(true)
         );
       }
     }
