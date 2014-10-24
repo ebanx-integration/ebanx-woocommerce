@@ -76,3 +76,10 @@
   padding-right: 15px;
   padding-top: 15px;
 }
+.person-hidden {
+  display: none;
+}
+.person-selector input {}
+.person-selector label {
+  margin-right: 20px;
+}

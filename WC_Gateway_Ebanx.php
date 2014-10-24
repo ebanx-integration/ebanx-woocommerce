@@ -56,6 +56,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     $this->max_installments    = intval($this->get_option('max_installments'));
     $this->interest_mode       = $this->get_option('interest_mode');
     $this->interest_rate       = floatval($this->get_option('interest_rate'));
+    $this->enable_business_checkout = ($this->get_option('enable_business_checkout') == 'yes');
 
     // Images
     $this->icon_boleto = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/images/icon_boleto.png';
@@ -182,6 +183,13 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
         'default'  => '0.00',
         'desc_tip' => true,
         'description' => ''
+      ),
+      'enable_business_checkout' => array(
+        'title'   => __('Enable business checkout', 'woocommerce'),
+        'type'    => 'checkbox',
+        'label'   => __('Enable checkout for businesses/companies', 'woocommerce'),
+        'default' => 'no',
+        'description' => ''
       )
     );
   }
@@ -232,6 +240,16 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
   }
 
   /**
+   * Returns the path to a template file
+   * @param  string $template The template name
+   * @return string
+   */
+  protected function getTemplatePath($template)
+  {
+    return dirname(__FILE__) . '/view/' . $template;
+  }
+
+  /**
    * Renders the EBANX checkout page
    * @param  int $order_id The order ID
    * @return boolean
@@ -244,6 +262,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     $order = new WC_Order($order_id);
 
     $ebanxDocument = (isset($order->billing_cpf)) ? $order->billing_cpf: '';
+    $personType    = (isset($_POST['ebanx']['person_type'])) ? $_POST['ebanx']['person_type'] : 'personal';
 
     if (isset($order->billing_birthdate))
     {
@@ -369,6 +388,21 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           , 'payment_type_code' => $paymentMethod
         )
     );
+
+    // Setup business data if it's enabled and present on the request
+    if ($this->enable_business_checkout)
+    {
+      if (isset($_POST['ebanx']['person_type']) && $_POST['ebanx']['person_type'] == 'business')
+      {
+        $params['payment']['person_type'] = 'business';
+        $params['payment']['document']    = $_POST['ebanx']['document_business'];
+        $params['payment']['responsible'] = array(
+            'name'       => $_POST['ebanx']['responsible_name']
+          , 'document'   => $_POST['ebanx']['responsible_document']
+          , 'birth_date' => $birthDate
+        );
+      }
+    }
 
     // Add credit card fields if the method is credit card
     if ($paymentMethod == 'creditcard')
@@ -507,11 +541,11 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           , 'es' => 'Usted debe ser mayor de 16 años para comprar.'
         )
       , 'BP-DR-22' => array(
-            'pt' => 'É preciso fornecer um CPF válido.'
+            'pt' => 'É preciso fornecer um CPF e/ou CNPJ válido.'
           , 'es' => 'Debe proporcionar un RUC válido.'
         )
       , 'BP-DR-23' => array(
-            'pt' => 'É preciso fornecer um CPF válido.'
+            'pt' => 'É preciso fornecer um CPF e/ou CNPJ válido.'
           , 'es' => 'Debe proporcionar un RUC válido.'
         )
       , 'BP-DR-35' => array(
@@ -521,6 +555,14 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       , 'BP-DR-39' => array(
             'pt' => 'O CPF é inválido ou está irregular na Receita Federal.'
           , 'es' => 'El RUC es inválido o irregular en IRS.'
+        )
+      , 'BP-DR-43' => array(
+            'pt' => 'É necessário informar o nome do responsável.'
+          , 'es' => 'Debe proporcionar el nombre del responsable.'
+        )
+      , 'BP-DR-44' => array(
+            'pt' => 'É necessário informar o CPF do responsável.'
+          , 'es' => 'Debe proporcionar el RUC del responsable.'
         )
     );
 

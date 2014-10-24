@@ -242,4 +242,14 @@ jQuery(document).ready(function() {
         }
       }
   });
+
+  // Changes person type fields
+  $(".person-selector input[name='ebanx[person_type]']").on('change', function() {
+    var self = $(this)
+      , businessFields = $('.person-business')
+      , personalFields = $('.person-personal');
+
+      businessFields.toggleClass('person-hidden');
+      personalFields.toggleClass('person-hidden');
+  });
 });
