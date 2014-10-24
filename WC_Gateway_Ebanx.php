@@ -263,6 +263,8 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
 
     $ebanxDocument = (isset($order->billing_cpf)) ? $order->billing_cpf: '';
     $personType    = (isset($_POST['ebanx']['person_type'])) ? $_POST['ebanx']['person_type'] : 'personal';
+    $responsible   = $order->billing_first_name . ' ' . $order->billing_last_name;
+    $companyName   = $order->billing_company ?: '';
 
     if (isset($order->billing_birthdate))
     {
@@ -423,6 +425,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     {
       if (isset($_POST['ebanx']['person_type']) && $_POST['ebanx']['person_type'] == 'business')
       {
+        $params['payment']['name']        = $_POST['ebanx']['company_name'];
         $params['payment']['person_type'] = 'business';
         $params['payment']['document']    = $_POST['ebanx']['document_business'];
         $params['payment']['responsible'] = array(

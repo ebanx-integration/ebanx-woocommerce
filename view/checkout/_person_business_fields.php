@@ -1,4 +1,12 @@
 <li>
+  <label for="ebanx_company_name" class="required">Nome da empresa</label>
+  <div class="input-box">
+    <input type="text" title="Nome da empresa" class="input-text required-entry" id="ebanx_company_name" name="ebanx[company_name]"
+    value="<?php echo isset($_POST['ebanx']['company_name']) ? $_POST['ebanx']['company_name'] : $companyName ?>">
+  </div>
+</li>
+
+<li>
   <label for="ebanx_document_business" class="required">CNPJ</label>
   <div class="input-box">
     <input type="text" title="CNPJ" class="input-text required-entry" id="ebanx_document_business" name="ebanx[document_business]"
@@ -6,11 +14,12 @@
   </div>
 </li>
 
+
 <li>
   <label for="ebanx_responsible_name" class="required">Nome do responsável</label>
   <div class="input-box">
     <input type="text" title="Nome do responsável" class="input-text required-entry" id="ebanx_responsible_name" name="ebanx[responsible_name]"
-    value="<?php echo isset($_POST['ebanx']['responsible_name']) ? $_POST['ebanx']['responsible_name'] : '' ?>">
+    value="<?php echo isset($_POST['ebanx']['responsible_name']) ? $_POST['ebanx']['responsible_name'] : $responsible ?>">
   </div>
 </li>
 

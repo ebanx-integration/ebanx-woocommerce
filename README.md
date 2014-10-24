@@ -25,6 +25,7 @@ git clone --recursive https://github.com/ebanx/ebanx-woocommerce.git
 5. That's all!
 
 ## Changelog
+* 1.9.2: fixed business checkout
 * 1.9.1: fixed checkout without plugin
 * 1.9.0: implemented checkout for businesses
 * 1.8.0: different checkout pages for each country, partial localization
