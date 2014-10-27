@@ -7,7 +7,7 @@ plugin (http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazi
 
 ## Requirements
 * PHP 5.3+
-* Wordpress 3.5+
+* Wordpress 3.7+
 * WooCommerce 2.1+
 
 ## Installation
