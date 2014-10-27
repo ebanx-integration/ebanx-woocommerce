@@ -4,7 +4,12 @@ This plugin enables you to integrate your WooCommerce store with the EBANX payme
 
 It includes support to installments and also has bindings for the WooCommerce Extra Checkout Fields for Brazil
 plugin (http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazil/).
-d
+
+## Requirements
+* PHP 5.3+
+* Wordpress 3.5+
+* WooCommerce 2.1+
+
 ## Installation
 1. Clone the git repo to your Wordpress /wp-content/plugins folder
 ```
@@ -25,6 +30,7 @@ git clone --recursive https://github.com/ebanx/ebanx-woocommerce.git
 5. That's all!
 
 ## Changelog
+* 1.9.3: fixed URLs for WooCommerce 2.1+
 * 1.9.2: fixed business checkout
 * 1.9.1: fixed checkout without plugin
 * 1.9.0: implemented checkout for businesses
