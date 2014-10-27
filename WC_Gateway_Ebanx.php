@@ -216,7 +216,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
 
     return array(
       'result'   => 'success',
-      'redirect' => add_query_arg('order', $order->id, add_query_arg('key', $order->order_key, get_permalink(woocommerce_get_page_id('pay'))))
+      'redirect' => $order->get_checkout_payment_url(true)
     );
   }
 
@@ -487,7 +487,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
         if ($paymentMethod == 'boleto')
         {
           $boletoUrl = $response->payment->boleto_url;
-          $orderUrl  = $this->get_return_url($order);
+          $orderUrl  = $order->get_checkout_order_received_url($order);
 
           $tplDir = dirname(__FILE__) . '/view/';
 
@@ -498,7 +498,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
         {
           $cipUrl   = $response->payment->cip_url;
           $cipCode  = $response->payment->cip_code;
-          $orderUrl = $this->get_return_url($order);
+          $orderUrl = $order->get_checkout_order_received_url($order);
 
           $tplDir = dirname(__FILE__) . '/view/';
 
