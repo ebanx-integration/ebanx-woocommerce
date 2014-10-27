@@ -4,7 +4,7 @@ Donate link: http://ebanx.com/
 Tags: ebanx, woocommerce, payment
 Requires at least: 3.7.0
 Tested up to: 4.0.0
-Stable tag: 1.9.2
+Stable tag: 1.9.3
 License: BSD
 License URI: http://opensource.org/licenses/BSD-3-Clause
 
