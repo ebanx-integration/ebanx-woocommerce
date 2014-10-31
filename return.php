@@ -77,7 +77,7 @@ function ebanx_notify_response()
 
       if (isset($response->status) && $response->status == 'SUCCESS')
       {
-        $orderId = (int) $response->payment->merchant_payment_code;
+        $orderId = (int) $response->payment->order_number;
         $order = new WC_Order($orderId);
 
         if ($order)
@@ -90,7 +90,7 @@ function ebanx_notify_response()
           elseif ($response->payment->status == 'CO')
           {
             $order->add_order_note(__('EBANX payment completed, Hash: '.$response->payment->hash, 'woocommerce'));
-            $order->payment_complete();
+            $order->payment_complete($response->payment->order_number);
             echo "OK: Payment {$hash} was completed";
           }
           elseif ($response->payment->status == 'OP' || $response->payment->status == 'PE')
@@ -123,7 +123,7 @@ function ebanx_return_response()
 
   $response = \Ebanx\Ebanx::doQuery(array('hash' => $_GET['hash']));
 
-  $orderId = (int) $_GET['merchant_payment_code'];
+  $orderId = (int) $response->payment->order_number;
   $order   = new WC_Order($orderId);
 
   if (isset($response->status) && $response->status == 'SUCCESS' && ($response->payment->status == 'PE' || $response->payment->status == 'CO'))
