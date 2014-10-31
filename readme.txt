@@ -4,7 +4,7 @@ Donate link: http://ebanx.com/
 Tags: ebanx, woocommerce, payment
 Requires at least: 3.7.0
 Tested up to: 4.0.0
-Stable tag: 1.9.3
+Stable tag: 1.9.4
 License: BSD
 License URI: http://opensource.org/licenses/BSD-3-Clause
 
@@ -43,6 +43,8 @@ How to install the plugin:
 6. That's all!
 
 == Changelog ==
+= 1.9.4 =
+* fixed return/notification on sandbox
 = 1.9.3 =
 * fixed URLs for WooCommerce 2.1+
 = 1.9.2 =

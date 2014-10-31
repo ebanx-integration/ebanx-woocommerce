@@ -30,6 +30,7 @@ git clone --recursive https://github.com/ebanx/ebanx-woocommerce.git
 5. That's all!
 
 ## Changelog
+* 1.9.4: fixed return/notification on sandbox
 * 1.9.3: fixed URLs for WooCommerce 2.1+
 * 1.9.2: fixed business checkout
 * 1.9.1: fixed checkout without plugin
