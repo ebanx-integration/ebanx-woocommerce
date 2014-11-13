@@ -57,6 +57,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     $this->interest_mode       = $this->get_option('interest_mode');
     $this->interest_rate       = floatval($this->get_option('interest_rate'));
     $this->enable_business_checkout = ($this->get_option('enable_business_checkout') == 'yes');
+    $this->enable_ruc_peru     = ($this->get_option('enable_ruc_peru') == 'yes');
 
     // Images
     $this->icon_boleto = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/images/icon_boleto.png';
@@ -190,7 +191,14 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
         'label'   => __('Enable checkout for businesses/companies', 'woocommerce'),
         'default' => 'no',
         'description' => ''
-      )
+      ),
+      'enable_ruc_peru' => array(
+        'title'   => __('Request RUC and birthdate for Peruvian customers', 'woocommerce'),
+        'type'    => 'checkbox',
+        'label'   => __('Request RUC and birthdate for Peruvian customers', 'woocommerce'),
+        'default' => 'yes',
+        'description' => ''
+      ),
     );
   }
 
@@ -314,6 +322,12 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       );
     }
 
+    // Return empty date if nothing was supplied
+    if ($date['day'] == 0)
+    {
+      return '';
+    }
+
     if ($formatDate)
     {
       $date = str_pad($date['day'], 2, '0', STR_PAD_LEFT) . '/' .
@@ -386,10 +400,6 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
 
     $order = new WC_Order($order_id);
 
-    $postBdate     = str_pad($_POST['ebanx']['birth_day'], 2, '0', STR_PAD_LEFT) . '/' .
-                    str_pad($_POST['ebanx']['birth_month'], 2, '0', STR_PAD_LEFT) . '/' .
-                    str_pad($_POST['ebanx']['birth_year'],   2, '0', STR_PAD_LEFT);
-    $ebanxDocument = $_POST['ebanx']['document'];
     $streetNumber  = isset($order->billing_number) ? $order->billing_number : '1';
     $paymentMethod = (isset($_POST['ebanx']['method'])) ? $_POST['ebanx']['method'] : '';
     $countryCode   = $order->billing_country;
@@ -408,7 +418,6 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           , 'name'              => $order->billing_first_name . ' ' . $order->billing_last_name
           , 'email'             => $order->billing_email
           , 'birth_date'        => $this->getBirthdateFromRequest(true)
-          , 'document'          => $ebanxDocument
           , 'address'           => $order->billing_address_1
           , 'street_number'     => $streetNumber
           , 'city'              => $order->billing_city
@@ -419,6 +428,13 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           , 'payment_type_code' => $paymentMethod
         )
     );
+
+    // Add document separatly because it may not be needed
+    if (isset($_POST['ebanx']['document']))
+    {
+      $params['payment']['document'] = $_POST['ebanx']['document'];
+    }
+
 
     // Setup business data if it's enabled and present on the request
     if ($this->enable_business_checkout)
