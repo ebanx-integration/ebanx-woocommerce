@@ -18,15 +18,15 @@
       </div>
 
       <div class="person-business <?php if ($personType == 'personal') echo 'person-hidden' ?>">
-        <? require_once $this->getTemplatePath('/checkout/_person_business_fields.php') ?>
+        <?php require_once $this->getTemplatePath('/checkout/_person_business_fields.php') ?>
       </div>
 
       <div class="person-personal <?php if ($personType == 'business') echo 'person-hidden' ?>">
-        <? require_once $this->getTemplatePath('/checkout/_person_personal_fields.php') ?>
+        <?php require_once $this->getTemplatePath('/checkout/_person_personal_fields.php') ?>
       </div>
-    <? else: ?>
-      <? require_once $this->getTemplatePath('/checkout/_person_personal_fields.php') ?>
-    <? endif ?>
+    <?php else: ?>
+      <?php require_once $this->getTemplatePath('/checkout/_person_personal_fields.php') ?>
+    <?php endif ?>
 
     <li>
       <label for="payment-method" class="required">Método de pagamento</label>
@@ -145,7 +145,7 @@
             </div>
           </div>
         </li>
-      <? endif ?>
+      <?php endif ?>
     <?php endif ?>
 
     <?php if ($this->enable_tef && $orderCountry == 'BR'): ?>

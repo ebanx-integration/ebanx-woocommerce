@@ -55,7 +55,7 @@
           </div>
         </div>
       </li>
-    <? endif ?>
+    <?php endif ?>
 
     <li>
       <label for="payment-method" class="required">Forma de pago</label>
