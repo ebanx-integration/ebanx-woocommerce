@@ -30,6 +30,7 @@ git clone --recursive https://github.com/ebanx/ebanx-woocommerce.git
 5. That's all!
 
 ## Changelog
+* 1.11.3: fixed template issue
 * 1.11.2: bump version
 * 1.11.1: fixed short tags
 * 1.11.0: tested against WP4.0.1
