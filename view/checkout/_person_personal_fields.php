@@ -25,7 +25,7 @@
         <option value="" selected="selected">Mês</option>
         <?php for ($i = 1; $i <= 12; $i++): ?>
           <option value="<?php echo $i ?>" <?php if (isset($birthDate['month']) && $birthDate['month'] == $i) echo 'selected'?>>
-            <?php echo date("F", mktime(0, 0, 0, $i, 10)) ?>
+            <?php echo str_pad($i, 2, '0', STR_PAD_LEFT) ?>
           </option>
         <?php endfor ?>
       </select>

@@ -38,7 +38,7 @@
       <select id="ebanx_responsible_birth_day" name="ebanx[responsible_birth_day]" class="day required-entry" autocomplete="off">
         <option value="" selected="selected">Dia</option>
         <?php for ($i = 1; $i <= 31; $i++): ?>
-          <option value="<?php echo $i ?>" <?php if ($birthDate['day'] == $i) echo 'selected'?>>
+          <option value="<?php echo $i ?>" <?php if (isset($birthDate['day']) && $birthDate['day'] == $i) echo 'selected'?>>
             <?php echo $i ?>
           </option>
         <?php endfor ?>
@@ -49,8 +49,8 @@
       <select id="ebanx_responsible_birth_month" name="ebanx[responsible_birth_month]" class="month required-entry" autocomplete="off">
         <option value="" selected="selected">Mês</option>
         <?php for ($i = 1; $i <= 12; $i++): ?>
-          <option value="<?php echo $i ?>" <?php if ($birthDate['month'] == $i) echo 'selected'?>>
-            <?php echo date("F", mktime(0, 0, 0, $i, 10)) ?>
+          <option value="<?php echo $i ?>" <?php if (isset($birthDate['month']) && $birthDate['month'] == $i) echo 'selected'?>>
+            <?php echo str_pad($i, 2, '0', STR_PAD_LEFT) ?>
           </option>
         <?php endfor ?>
       </select>
@@ -60,7 +60,7 @@
       <select id="ebanx_responsible_birth_year" name="ebanx[responsible_birth_year]" class="year required-entry" autocomplete="off">
         <option value="" selected="selected">Ano</option>
         <?php for ($i = date('Y') - 16; $i > 1920; $i--): ?>
-          <option value="<?php echo $i ?>" <?php if ($birthDate['year'] == $i) echo 'selected'?>>
+          <option value="<?php echo $i ?>" <?php if (isset($birthDate['year']) && $birthDate['year'] == $i) echo 'selected'?>>
             <?php echo $i ?>
           </option>
         <?php endfor ?>
