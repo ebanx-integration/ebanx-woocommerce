@@ -84,7 +84,8 @@ function ebanx_notify_response()
         {
           if ($response->payment->status == 'CA')
           {
-            $order->update_status('cancelled', 'Payment cancelled via IPN.');
+            $order->add_order_note('Payment cancelled via IPN.');
+            $order->cancel_order();
             echo "OK: Payment {$hash} was cancelled via IPN";
           }
           elseif ($response->payment->status == 'CO')
@@ -126,25 +127,22 @@ function ebanx_return_response()
   $orderId = (int) $response->payment->order_number;
   $order   = new WC_Order($orderId);
 
-  if (isset($response->status) && $response->status == 'SUCCESS' && ($response->payment->status == 'PE' || $response->payment->status == 'CO'))
+  if (isset($response->status) && $response->status == 'SUCCESS' && $response->payment->status == 'CO')
   {
     if ($response->payment->status == 'CO')
     {
       $order->add_order_note(__('EBANX payment completed, Hash: '.$response->payment->hash, 'woocommerce'));
       $order->payment_complete();
     }
-    else if($response->payment->status == 'PE')
-    {
-      $order->update_status('pending', 'Payment pending via Response URL.');
-    }
-
-    wp_redirect($ebanxWC->get_return_url($order));
   }
   else
   {
-    $order->update_status('cancelled', 'Payment cancelled via Response URL.');
-    wp_redirect($order->get_cancel_order_url());
+    $order->add_order_note('Payment cancelled via Response URL.');
+    $order->cancel_order();
+    wp_redirect($ebanxWC->get_return_url($order));
   }
+
+  wp_redirect($ebanxWC->get_return_url($order));
 
   exit;
 }
