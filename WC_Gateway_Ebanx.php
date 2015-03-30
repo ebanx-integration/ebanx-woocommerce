@@ -114,7 +114,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       'title' => array(
         'title'    => __('Title', 'woocommerce'),
         'type'     => 'text',
-        'default'  => __('Payments for Latin Americans', 'woocommerce'),
+        'default'  => __('EBANX', 'woocommerce'),
         'desc_tip' => true,
         'description' => __('This controls the title which the user sees during checkout.', 'woocommerce')
       ),
