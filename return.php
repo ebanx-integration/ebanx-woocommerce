@@ -135,12 +135,6 @@ function ebanx_return_response()
       $order->payment_complete();
     }
   }
-  else
-  {
-    $order->add_order_note('Payment cancelled via Response URL.');
-    $order->cancel_order();
-    wp_redirect($ebanxWC->get_return_url($order));
-  }
 
   wp_redirect($ebanxWC->get_return_url($order));
 

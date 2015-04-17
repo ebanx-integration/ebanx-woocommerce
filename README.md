@@ -30,6 +30,7 @@ git clone --recursive https://github.com/ebanx/ebanx-woocommerce.git
 5. That's all!
 
 ## Changelog
+* 2.0.1: fixed return URL cancelling orders bug
 * 2.0.0: LATAM checkout support, ditched direct integration
 * 1.11.4: fixed template issues
 * 1.11.3: fixed template issue
