@@ -30,6 +30,7 @@ git clone --recursive https://github.com/ebanx/ebanx-woocommerce.git
 5. That's all!
 
 ## Changelog
+* 2.1.2: fixed bugs for SVN
 * 2.1.1: fixed bugs for SVN
 * 2.1.0: added Direct API credit card
 * 2.0.1: fixed return URL cancelling orders bug
