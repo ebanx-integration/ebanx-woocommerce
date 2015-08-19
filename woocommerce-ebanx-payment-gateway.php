@@ -34,7 +34,7 @@
  * Plugin Name: Woocommerce EBANX Express Payment Gateway
  * Plugin URI: http://developers.ebanx.com
  * Description: This plugin extends the WooCommerce payment gateways with the EBANX payment gateway
- * Version: 1.11.4
+ * Version: 2.1.0
  * Developer: EBANX Tecnologia da InformaÃ§Ã£o Ltda.
  * Developer URI: https://www.ebanx.com/
 */
