@@ -3,8 +3,8 @@ Contributors: ebanx
 Donate link: http://ebanx.com/
 Tags: ebanx, woocommerce, payment
 Requires at least: 3.7.0
-Tested up to: 4.1.1
-Stable tag: 2.0.1
+Tested up to: 4.0.1
+Stable tag: 1.11.4
 License: BSD
 License URI: http://opensource.org/licenses/BSD-3-Clause
 
@@ -43,10 +43,6 @@ How to install the plugin:
 6. That's all!
 
 == Changelog ==
-= 2.0.1 =
-*  fixed return URL cancelling orders bug
-= 2.0.0 =
-* LATAM checkout support, ditched direct integration
 = 1.11.4 =
 * fixed template issues
 = 1.11.3 =

@@ -2,7 +2,7 @@ jQuery(document).ready(function() {
   var ebanxRadio      = document.getElementById('payment_method_ebanx')
     , ebanxDirectForm = document.getElementById('payment_ebanx_direct')
     , fieldIds = [
-        'ebanx_document'
+        'ebanx_cpf'
       , 'ebanx_cc_name'
       , 'ebanx_cc_type'
       , 'ebanx_cc_number'
@@ -59,9 +59,10 @@ jQuery(document).ready(function() {
     }
   }
 
-
+  $('#ebanx_method_boleto, #ebanx_method_creditcard, #ebanx_method_tef, #ebanx_method_pagoefectivo').on('click', function() {
     toggleCCFields();
-
+    toggleTEFFields();
+  });
   /**
    * Toggle the active payment method class
    */
@@ -170,14 +171,24 @@ jQuery(document).ready(function() {
    * @return boolean
    */
   $('#ebanx-checkout-form').on('submit', function() {
-    var tinDoc = $('#ebanx_document').val()
+    var cpf    = $('#ebanx_cpf').val()
       , bDay   = $('#ebanx_birth_day').val()
       , bMonth = $('#ebanx_birth_month').val()
       , bYear  = $('#ebanx_birth_year').val()
       , paymentMethod = $('input[name="ebanx[method]"]:checked');
 
+      if (!cpf || !validateCpf(cpf)) {
+        alert('O CPF digitado não é válido.');
+        return false;
+      }
+
       if (!paymentMethod) {
         alert('É necessário escolher o método de pagamento.');
+        return false;
+      }
+
+      if (!bDay || !bMonth || !bYear) {
+        alert('É necessário informar a data de nascimento.');
         return false;
       }
 
@@ -230,15 +241,5 @@ jQuery(document).ready(function() {
           return false;
         }
       }
-  });
-
-  // Changes person type fields
-  $(".person-selector input[name='ebanx[person_type]']").on('change', function() {
-    var self = $(this)
-      , businessFields = $('.person-business')
-      , personalFields = $('.person-personal');
-
-      businessFields.toggleClass('person-hidden');
-      personalFields.toggleClass('person-hidden');
   });
 });

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2013, EBANX Tecnologia da Informação Ltda.
+ * Copyright (c) 2013, EBANX Tecnologia da InformaÃ§Ã£o Ltda.
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,11 @@
  */
 
 /**
- * Plugin Name: Woocommerce EBANX Payment Gateway
+ * Plugin Name: Woocommerce EBANX Express Payment Gateway
  * Plugin URI: http://developers.ebanx.com
  * Description: This plugin extends the WooCommerce payment gateways with the EBANX payment gateway
- * Version: 2.0.1
- * Developer: EBANX Tecnologia da Informação Ltda.
+ * Version: 1.11.4
+ * Developer: EBANX Tecnologia da InformaÃ§Ã£o Ltda.
  * Developer URI: https://www.ebanx.com/
 */
 
