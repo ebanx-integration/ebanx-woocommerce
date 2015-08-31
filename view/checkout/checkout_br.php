@@ -98,7 +98,6 @@
           </div>
         </div>
       </li>
-
       <?php if ($this->enable_installments): ?>
         <li class="ebanx-cc-field">
           <label for="ebanx_cc_installments" class="required">Parcelas</label>
