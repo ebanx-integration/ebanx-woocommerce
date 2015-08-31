@@ -52,18 +52,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     $this->enable_installments = $this->get_option('enable_installments') == 'yes';
     $this->max_installments    = intval($this->get_option('max_installments'));
     $this->interest_mode       = $this->get_option('interest_mode');
-    $this->interest_rate1       = floatval($this->get_option('interest_rate1'));
-    $this->interest_rate2       = floatval($this->get_option('interest_rate2'));
-    $this->interest_rate3       = floatval($this->get_option('interest_rate3'));
-    $this->interest_rate4       = floatval($this->get_option('interest_rate4'));
-    $this->interest_rate5       = floatval($this->get_option('interest_rate5'));
-    $this->interest_rate6       = floatval($this->get_option('interest_rate6'));
-    $this->interest_rate7       = floatval($this->get_option('interest_rate7'));
-    $this->interest_rate8       = floatval($this->get_option('interest_rate8'));
-    $this->interest_rate9       = floatval($this->get_option('interest_rate9'));
-    $this->interest_rate10       = floatval($this->get_option('interest_rate10'));
-    $this->interest_rate11       = floatval($this->get_option('interest_rate11'));
-    $this->interest_rate12       = floatval($this->get_option('interest_rate12'));
+    $this->interest_rate       = floatval($this->get_option('interest_rate'));
 
     // Images
     $this->icon_boleto = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/images/icon_boleto.png';
@@ -160,85 +149,8 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           'simple'   => 'Simple interest'
         )
       ),
-      'interest_rate1' => array(
-        'title'    => __('Interest rate 1 Instalment', 'woocommerce'),
-        'type'     => 'text',
-        'default'  => '0.00',
-        'desc_tip' => true,
-        'description' => ''
-      ),
-      'interest_rate2' => array(
-        'title'    => __('Interest rate 2 Instalments', 'woocommerce'),
-        'type'     => 'text',
-        'default'  => '0.00',
-        'desc_tip' => true,
-        'description' => ''
-      ),
-      'interest_rate3' => array(
-        'title'    => __('Interest rate 3 Instalments', 'woocommerce'),
-        'type'     => 'text',
-        'default'  => '0.00',
-        'desc_tip' => true,
-        'description' => ''
-      ),
-      'interest_rate4' => array(
-        'title'    => __('Interest rate 4 Instalments', 'woocommerce'),
-        'type'     => 'text',
-        'default'  => '0.00',
-        'desc_tip' => true,
-        'description' => ''
-      ),
-      'interest_rate5' => array(
-        'title'    => __('Interest rate 5 Instalments', 'woocommerce'),
-        'type'     => 'text',
-        'default'  => '0.00',
-        'desc_tip' => true,
-        'description' => ''
-      ),
-      'interest_rate6' => array(
-        'title'    => __('Interest rate 6 Instalments', 'woocommerce'),
-        'type'     => 'text',
-        'default'  => '0.00',
-        'desc_tip' => true,
-        'description' => ''
-      ),
-      'interest_rate7' => array(
-        'title'    => __('Interest rate 7 Instalments', 'woocommerce'),
-        'type'     => 'text',
-        'default'  => '0.00',
-        'desc_tip' => true,
-        'description' => ''
-      ),
-      'interest_rate8' => array(
-        'title'    => __('Interest rate 8 Instalments', 'woocommerce'),
-        'type'     => 'text',
-        'default'  => '0.00',
-        'desc_tip' => true,
-        'description' => ''
-      ),
-      'interest_rate9' => array(
-        'title'    => __('Interest rate 9 Instalments', 'woocommerce'),
-        'type'     => 'text',
-        'default'  => '0.00',
-        'desc_tip' => true,
-        'description' => ''
-      ),
-      'interest_rate10' => array(
-        'title'    => __('Interest rate 10 Instalments', 'woocommerce'),
-        'type'     => 'text',
-        'default'  => '0.00',
-        'desc_tip' => true,
-        'description' => ''
-      ),
-      'interest_rate11' => array(
-        'title'    => __('Interest rate 11 Instalments', 'woocommerce'),
-        'type'     => 'text',
-        'default'  => '0.00',
-        'desc_tip' => true,
-        'description' => ''
-      ),
-      'interest_rate12' => array(
-        'title'    => __('Interest rate 12 Instalments', 'woocommerce'),
+      'interest_rate' => array(
+        'title'    => __('Interest rate', 'woocommerce'),
         'type'     => 'text',
         'default'  => '0.00',
         'desc_tip' => true,
@@ -654,50 +566,18 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
    */
   protected function calculateTotalWithInterest($orderTotal, $installments)
   {
-    switch ($installments) {
-      case '1':
-        $interest_rate = $this->interest_rate1;
+    switch ($this->interest_mode) {
+      case 'compound':
+        $total = $orderTotal * pow((1.0 + floatval($this->interest_rate / 100)), $installments);
         break;
-      case '2':
-        $interest_rate = $this->interest_rate2;
-        break;
-      case '3':
-        $interest_rate = $this->interest_rate3;
-        break;
-      case '4':
-        $interest_rate = $this->interest_rate4;
-        break;
-      case '5':
-        $interest_rate = $this->interest_rate5;
-        break;
-      case '6':
-        $interest_rate = $this->interest_rate6;
-        break;
-      case '7':
-        $interest_rate = $this->interest_rate7;
-        break;
-      case '8':
-        $interest_rate = $this->interest_rate8;
-        break;
-      case '9':
-        $interest_rate = $this->interest_rate9;
-        break;
-      case '10':
-        $interest_rate = $this->interest_rate10;
-        break;
-      case '11':
-        $interest_rate = $this->interest_rate11;
-        break;
-      case '12':
-        $interest_rate = $this->interest_rate12;
+      case 'simple':
+        $total = (floatval($this->interest_rate / 100) * floatval($orderTotal) * intval($installments)) + floatval($orderTotal);
         break;
       default:
-        # code...
+        throw new Exception("Interest mode {$interestMode} is unsupported.");
         break;
     }
 
-     $total = (floatval($interest_rate / 100) * floatval($orderTotal) + floatval($orderTotal));
-  
     return $total;
   }
 }
