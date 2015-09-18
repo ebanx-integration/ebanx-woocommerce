@@ -157,7 +157,6 @@ class WC_Gateway_Ebanx_Standard extends WC_Payment_Gateway
       else
       {
         wc_add_notice($this->getEbanxErrorMessage($response->status_code, $order->billing_country), 'error');
-        var_dump($response->status_code);
         echo $response->status_code;
         error_log($response->status_code);
       }
