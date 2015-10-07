@@ -394,12 +394,6 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
         )
     );
 
-    // Add document separatly because it may not be needed
-    if (isset($_POST['ebanx']['document']))
-    {
-      $params['payment']['document'] = $_POST['ebanx']['document'];
-    }
-
     // Add credit card fields if the method is credit card
     if ($paymentMethod == 'creditcard')
     {
