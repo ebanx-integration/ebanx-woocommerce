@@ -2,21 +2,14 @@ jQuery(document).ready(function() {
   var ebanxRadio      = document.getElementById('payment_method_ebanx')
     , ebanxDirectForm = document.getElementById('payment_ebanx_direct')
     , fieldIds = [
-        'ebanx_document'
-      , 'ebanx_cc_name'
+        'ebanx_cc_name'
       , 'ebanx_cc_type'
       , 'ebanx_cc_number'
       , 'ebanx_cc_cvv'
       , 'ebanx_cc_expiration_month'
       , 'ebanx_cc_expiration_year'
-      , 'ebanx_birth_day'
-      , 'ebanx_birth_month'
-      , 'ebanx_birth_year'
-      , 'ebanx_method_boleto'
-      , 'ebanx_method_creditcard'
-      , 'ebanx_method_tef'
-      , 'ebanx_cc_installments'
-      , 'ebanx_tef_bank'
+      , 'ebanx_method_creditcard'      
+      , 'ebanx_cc_installments'      
     ];
 
   var $ = jQuery;
@@ -44,21 +37,6 @@ jQuery(document).ready(function() {
    * Toggle TEF fields when changing the EBANX payment method
    * @return void
    */
-  function toggleTEFFields() {
-    var radio  = document.getElementById('ebanx_method_tef')
-      , fields = document.getElementsByClassName('ebanx-tef-field');
-
-    if (radio) {
-      for (i = 0; i < fields.length; i++) {
-        if (radio.checked == true) {
-          fields[i].style.display = 'block';
-        } else {
-          fields[i].style.display = 'none';
-        }
-      }
-    }
-  }
-
 
     toggleCCFields();
 
@@ -81,31 +59,6 @@ jQuery(document).ready(function() {
       methods[i].onclick = clickEvent;
     }
   }();
-
- /**
-   * Validates the CPF number
-   *
-   */
-  function validateCpf(cpf) {
-    var digits = cpf.replace(/[\D]/g, '')
-      , dv1, dv2, sum, mod;
-
-    if (digits.length == 11) {
-      d = digits.split('');
-
-      sum = d[0] * 10 + d[1] * 9 + d[2] * 8 + d[3] * 7 + d[4] * 6 + d[5] * 5 + d[6] * 4 + d[7] * 3 + d[8] * 2;
-      mod = sum % 11;
-      dv1 = (11 - mod < 10 ? 11 - mod : 0);
-
-      sum = d[0] * 11 + d[1] * 10 + d[2] * 9 + d[3] * 8 + d[4] * 7 + d[5] * 6 + d[6] * 5 + d[7] * 4 + d[8] * 3 + dv1 * 2;
-      mod = sum % 11;
-      dv2 = (11 - mod < 10 ? 11 - mod : 0);
-
-      return dv1 == d[9] && dv2 == d[10];
-    }
-
-    return false;
-  }
 
   /**
    * Updates the credit card issuer depending on its number
@@ -171,12 +124,8 @@ jQuery(document).ready(function() {
    * Validates the EBANX checkout form data
    * @return boolean
    */
-  $('#ebanx-checkout-form').on('submit', function() {
-    var tinDoc = $('#ebanx_document').val()
-      , bDay   = $('#ebanx_birth_day').val()
-      , bMonth = $('#ebanx_birth_month').val()
-      , bYear  = $('#ebanx_birth_year').val()
-      , paymentMethod = $('input[name="ebanx[method]"]:checked');
+  $('#ebanx-checkout-form-mx').on('submit', function() {
+    var paymentMethod = $('input[name="ebanx[method]"]:checked');
 
       if (!paymentMethod) {
         alert('É necessário escolher o método de pagamento.');

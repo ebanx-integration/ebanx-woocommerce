@@ -7,13 +7,13 @@
   <?php unset($_SESSION['ebanxError']) ?>
 <?php endif ?>
 
-<form method="POST" id="ebanx-checkout-form">
+<form method="POST" id="ebanx-checkout-form-mx">
   <ul class="form-list" id="payment_ebanx_direct">
     <li style="display: none;">
       <label for="payment-method" class="required">Método de pagamento</label>
       <div class="input-box ebanx-methods">
         <ul>
-          <?php if ($this->enable_cc && $orderCountry == 'BR'): ?>
+          <?php if ($this->enable_cc && $orderCountry == 'MX'): ?>
           <li class="payment-method payment-method-toggle">
             <input type="radio" name="ebanx[method]" id="ebanx_method_creditcard" value="creditcard" checked="checked"/>
             <label for="ebanx_method_creditcard">Cartão de crédito</label>
@@ -23,65 +23,20 @@
       </div>
     </li>
 
-    <?php if ($this->enable_cc && $orderCountry == 'BR'): ?>
-    <li class="ebanx-cc-field">
-      <label for="ebanx_cpf" class="required">CPF</label>
-      <div class="input-box">
-        <input type="text" title="CPF" class="input-text required-entry validate-cpf" id="ebanx_cpf" name="ebanx[cpf]"
-        value="<?php echo isset($_POST['ebanx']['cpf']) ? $_POST['ebanx']['cpf'] : $ebanxCpf ?>">
-      </div>
-    </li>
-
-    <li class="ebanx-cc-field">
-      <label for="ebanx_birth_day" class="required">Data de nascimento</label>
-      <div class="input-box ebanx-birth">
-        <div class="v-fix">
-          <select id="ebanx_birth_day" name="ebanx[birth_day]" class="day required-entry" autocomplete="off">
-            <option value="" selected="selected">Dia</option>
-            <?php for ($i = 1; $i <= 31; $i++): ?>
-              <option value="<?php echo $i ?>" <?php if ($birthDate['day'] == $i) echo 'selected'?>>
-                <?php echo $i ?>
-              </option>
-            <?php endfor ?>
-          </select>
-        </div>
-
-        <div class="v-fix">
-          <select id="ebanx_birth_month" name="ebanx[birth_month]" class="month required-entry" autocomplete="off">
-            <option value="" selected="selected">Mês</option>
-            <?php for ($i = 1; $i <= 12; $i++): ?>
-              <option value="<?php echo $i ?>" <?php if ($birthDate['month'] == $i) echo 'selected'?>>
-                <?php echo date("F", mktime(0, 0, 0, $i, 10)) ?>
-              </option>
-            <?php endfor ?>
-          </select>
-        </div>
-
-        <div class="v-fix">
-          <select id="ebanx_birth_year" name="ebanx[birth_year]" class="year required-entry" autocomplete="off">
-            <option value="" selected="selected">Ano</option>
-            <?php for ($i = date('Y') - 16; $i > 1920; $i--): ?>
-              <option value="<?php echo $i ?>" <?php if ($birthDate['year'] == $i) echo 'selected'?>>
-                <?php echo $i ?>
-              </option>
-            <?php endfor ?>
-          </select>
-        </div>
-      </div>
-    </li>
-
+    <?php if ($this->enable_cc && $orderCountry == 'MX'): ?>
+    
       <li class="ebanx-cc-field">
-        <label for="ebanx_cc_name" class="required">Titular do cartão</label>
+        <label for="ebanx_cc_name_mx" class="required">Titular do cartão</label>
         <div class="input-box">
-          <input type="text" title="Name on Card" class="input-text required-entry" id="ebanx_cc_name" name="ebanx[cc_name]"
+          <input type="text" title="Name on Card" class="input-text required-entry" id="ebanx_cc_name_mx" name="ebanx[cc_name]"
             value="<?php echo isset($_POST['ebanx']['cc_name']) ? $_POST['ebanx']['cc_name'] : '' ?>" autocomplete="off">
         </div>
       </li>
 
       <li class="ebanx-cc-field">
-        <label for="ebanx_cc_number" class="required ">Número do cartão</label>
+        <label for="ebanx_cc_number_mx" class="required ">Número do cartão</label>
         <div class="input-box">
-          <input type="text" id="ebanx_cc_number" name="ebanx[cc_number]" title="Credit Card Number"
+          <input type="text" id="ebanx_cc_number_mx" name="ebanx[cc_number]" title="Credit Card Number"
             class="input-text required-entry validate-cc-ebanx validate-length minimum-length-12 maximum-length-19"
             value="<?php echo isset($_POST['ebanx']['cc_number']) ? $_POST['ebanx']['cc_number'] : '' ?>" autocomplete="off">
         </div>
@@ -97,9 +52,9 @@
       </li>
 
       <li class="ebanx-cc-field">
-        <label for="ebanx_cc_type" class="required">Bandeira do cartão</label>
+        <label for="ebanx_cc_type_mx" class="required">Bandeira do Cartão</label>
         <div class="input-box">
-          <select id="ebanx_cc_type" name="ebanx[cc_type]" title="Credit Card Type" class="required-entry" autocomplete="off">
+          <select id="ebanx_cc_type_mx" name="ebanx[cc_type]" title="Credit Card Type" class="required-entry" autocomplete="off">
             <option value="" selected="selected">Por favor selecione</option>
               <option value="aura">Aura</option>
               <option value="amex">American Express</option>
@@ -114,10 +69,10 @@
       </li>
 
       <li class="ebanx-cc-field">
-        <label for="ebanx_cc_expiration_month" class="required">Validade do cartão</label>
+        <label for="ebanx_cc_expiration_month_mx" class="required">Validade do cartão</label>
         <div class="input-box">
           <div class="v-fix">
-            <select id="ebanx_cc_expiration_month" name="ebanx[cc_expiration_month]" class="month required-entry" autocomplete="off">
+            <select id="ebanx_cc_expiration_month_mx" name="ebanx[cc_expiration_month]" class="month required-entry" autocomplete="off">
               <option value="" selected="selected">Mês</option>
               <option value="1">01 - Janeiro</option>
               <option value="2">02 - Fevereiro</option>
@@ -151,7 +106,7 @@
             <div class="v-fix">
               <select id="ebanx_cc_installments" name="ebanx[cc_installments]" class="required-entry" autocomplete="off">
                 <?php foreach ($installmentOptions as $number => $total): ?>
-                  <option value="<?php echo $number ?>"><?php echo $number ?>x <?php echo 'R$' . money_format('%i', $total / $number) ?></option>
+                  <option value="<?php echo $number ?>"><?php echo $number ?>x <?php echo $ . money_format('%i', $total / $number) ?></option>
                 <?php endforeach ?>
               </select>
             </div>

@@ -302,8 +302,15 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
    */
   protected function getCheckoutTemplate($orderCountry)
   {
+
     $tplDir  = dirname(__FILE__) . '/view/checkout/';
-    $tplPath = $tplDir . 'checkout_br.php';
+    if($orderCountry == 'BR')
+    {
+      $tplPath = $tplDir . 'checkout_br.php';
+    } elseif ($orderCountry == 'MX')
+    {
+      $tplPath = $tplDir . 'checkout_mx.php';
+    }
 
     if (file_exists($tplPath))
     {
@@ -311,22 +318,28 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     }
 
     // Default template ("error template")
-    return file_get_contents($tplDir . 'checkout_default.php');
+    return file_get_contents($tplDir . 'checkout.php');
   }
 
   protected function calculateInstallmentOptions($orderTotal)
   {
+    $exchangeRate = \Ebanx\Ebanx::doExchange(array('currency_code' => 'USD'));
+
     $options = array();
-    $options[1] = $orderTotal;
+    $options[1] = $orderTotal * $exchangeRate->currency_rate->rate;
 
     for ($i = 2; $i <= $this->max_installments; $i++)
     {
+      // Gets the original value of the purchase and exchange rate to BRL
       $total = $this->calculateTotalWithInterest($orderTotal, $i);
+      $totalBRL = $total * $exchangeRate->currency_rate->rate;
 
-      // Enforce minimum 30 moneys for installments
-      if ($total / $i >= 30)
+      /** Enforce minimum 20 moneys for installments
+          It uses the BRL amount of the exchange rate.
+      */
+      if ($totalBRL / $i >= 20)
       {
-        $options[$i] = $total;
+        $options[$i] = $totalBRL;
       }
       else
       {
@@ -336,6 +349,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
 
     return $options;
   }
+
 
   /**
    * Generates the EBANX button link
@@ -363,6 +377,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     }
 
     $order = new WC_Order($order_id);
+
 
     $streetNumber  = isset($order->billing_number) ? $order->billing_number : '1';
     $paymentMethod = (isset($_POST['ebanx']['method'])) ? $_POST['ebanx']['method'] : '';
@@ -394,6 +409,8 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
         )
     );
 
+
+
     // Add credit card fields if the method is credit card
     if ($paymentMethod == 'creditcard')
     {
@@ -406,14 +423,16 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           , 'card_number'   => $_POST['ebanx']['cc_number']
           , 'card_cvv'      => $_POST['ebanx']['cc_cvv']
           , 'card_due_date' => $ccExpiration
+          //, 'auto_capture'  => false
         );
+        $params['payment']['document'] = $_POST['ebanx']['cpf'];
 
         // If has installments, adjust total
         if (isset($_POST['ebanx']['cc_installments']))
         {
           $installments = intval($_POST['ebanx']['cc_installments']);
 
-          if ($installments > 1)
+          if ($installments >= 1)
           {
             $params['payment']['instalments']  = $installments;
             $params['payment']['amount_total'] = $this->calculateTotalWithInterest($order->order_total, $installments);
@@ -485,6 +504,9 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
 
     switch ($countryCode)
     {
+      case 'mx':
+        $lang = 'es';
+        break;
       case 'pe':
         $lang = 'es';
         break;
@@ -560,18 +582,50 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
    */
   protected function calculateTotalWithInterest($orderTotal, $installments)
   {
-    switch ($this->interest_mode) {
-      case 'compound':
-        $total = $orderTotal * pow((1.0 + floatval($this->interest_rate / 100)), $installments);
-        break;
-      case 'simple':
-        $total = (floatval($this->interest_rate / 100) * floatval($orderTotal) * intval($installments)) + floatval($orderTotal);
-        break;
-      default:
-        throw new Exception("Interest mode {$interestMode} is unsupported.");
-        break;
-    }
+    //These rate values are fictional, you can change it to your own rates
+    switch ($installments) {
+          case '1':
+            $interest_rate = 1;
+            break;
+          case '2':
+            $interest_rate = 2.30;
+            break;
+          case '3':
+            $interest_rate = 3.40;
+            break;
+          case '4':
+            $interest_rate = 4.50;
+            break;
+          case '5':
+            $interest_rate = 5.60;
+            break;
+          case '6':
+            $interest_rate = 6.70;
+            break;
+          case '7':
+            $interest_rate = 7.80;
+            break;
+          case '8':
+            $interest_rate = 8.90;
+            break;
+          case '9':
+            $interest_rate = 9.10;
+            break;
+          case '10':
+            $interest_rate = 10.11;
+            break;
+          case '11':
+            $interest_rate = 11.22;
+            break;
+          case '12':
+            $interest_rate = 12.33;
+            break;
+          default:
+            # code...
+            break;
+        }
+         $total = (floatval($interest_rate / 100) * floatval($orderTotal) + floatval($orderTotal));
 
-    return $total;
-  }
+        return $total;
+      }
 }

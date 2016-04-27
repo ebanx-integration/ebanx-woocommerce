@@ -142,7 +142,7 @@
         <ul>
           <?php if ($this->enable_boleto && $orderCountry == 'BR'): ?>
           <li class="payment-method active payment-method-toggle">
-            <input type="radio" name="ebanx[method]" id="ebanx_method_boleto" value="boleto"  />
+            <input type="radio" name="ebanx[method]" id="ebanx_method_boleto" value="boleto" checked="checked" />
             <label for="ebanx_method_boleto">Boleto bancário</label>
           </li>
           <?php endif ?>
