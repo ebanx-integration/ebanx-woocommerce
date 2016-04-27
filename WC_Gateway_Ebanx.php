@@ -307,9 +307,6 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
     if($orderCountry == 'BR')
     {
       $tplPath = $tplDir . 'checkout_br.php';
-    } elseif ($orderCountry == 'MX')
-    {
-      $tplPath = $tplDir . 'checkout_mx.php';
     }
 
     if (file_exists($tplPath))
