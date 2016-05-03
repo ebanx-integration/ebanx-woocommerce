@@ -73,6 +73,8 @@ jQuery(document).ready(function() {
       }
 
       this.className += ' active';
+      toggleCCFields();
+      toggleTEFFields();
     };
 
     for (var i = 0; i < methods.length; i++) {

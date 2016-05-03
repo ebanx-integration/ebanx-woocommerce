@@ -59,7 +59,7 @@ jQuery(document).ready(function() {
     }
   }
 
-  $('#ebanx_method_boleto, #ebanx_method_creditcard, #ebanx_method_tef, #ebanx_method_pagoefectivo').on('click', function() {
+  $('#ebanx_method_boleto, #ebanx_method_creditcard, #ebanx_method_tef, #ebanx_method_pagoefectivo').click(function() {
     toggleCCFields();
     toggleTEFFields();
   });

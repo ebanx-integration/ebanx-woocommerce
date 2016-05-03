@@ -157,7 +157,6 @@ class WC_Gateway_Ebanx_Standard extends WC_Payment_Gateway
       else
       {
         wc_add_notice($this->getEbanxErrorMessage($response->status_code, $order->billing_country), 'error');
-        echo $response->status_code;
         error_log($response->status_code);
       }
     }
@@ -236,6 +235,10 @@ class WC_Gateway_Ebanx_Standard extends WC_Payment_Gateway
       , 'BP-DR-44' => array(
             'pt' => 'É necessário informar o CPF do responsável.'
           , 'es' => 'Debe proporcionar el RUC del responsable.'
+        )
+      , 'BP-R-23' => array(
+            'pt' => 'A moeda não está ativa no sistema.'
+          , 'es' => 'La moneda no está activa en el sistema.'
         )
     );
 
