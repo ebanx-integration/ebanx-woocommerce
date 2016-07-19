@@ -15,7 +15,7 @@
         <ul>
           <?php if ($this->enable_cc && $orderCountry == 'BR'): ?>
           <li class="payment-method payment-method-toggle">
-            <input type="radio" name="ebanx[method]" id="ebanx_method_creditcard" value="creditcard" />
+            <input type="radio" name="ebanx[method]" id="ebanx_method_creditcard" value="creditcard" checked="checked"/>
             <label for="ebanx_method_creditcard">Cartão de crédito</label>
           </li>
           <?php endif ?>
