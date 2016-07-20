@@ -138,24 +138,6 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           '12' => '12'
         )
       ),
-      'interest_mode' => array(
-        'title'    => __('Interest calculation method', 'woocommerce'),
-        'type'     => 'select',
-        'default'  => 'simple',
-        'desc_tip' => true,
-        'description' => '',
-        'options' => array(
-          'compound' => 'Compound interest',
-          'simple'   => 'Simple interest'
-        )
-      ),
-      'interest_rate' => array(
-        'title'    => __('Interest rate', 'woocommerce'),
-        'type'     => 'text',
-        'default'  => '0.00',
-        'desc_tip' => true,
-        'description' => ''
-      ),
     );
   }
 
