@@ -138,6 +138,7 @@ class WC_Gateway_Ebanx_Standard extends WC_Payment_Gateway
       , 'country'               => $order->billing_country
       , 'phone_number'          => $order->billing_phone
       , 'payment_type_code'     => '_all'
+      , 'plugin_source'       => 'Woocommerce ver. ' . WC()->version
     );
 
     try
