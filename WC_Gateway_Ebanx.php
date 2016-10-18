@@ -385,6 +385,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
           , 'phone_number'      => $order->billing_phone
           , 'payment_type_code' => $paymentMethod
           , 'document'          => $order->billing_cpf
+          , 'plugin_source'     => 'Woocommerce ver. ' . WC()->version
         )
     );
 
