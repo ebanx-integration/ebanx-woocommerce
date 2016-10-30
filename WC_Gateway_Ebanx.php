@@ -550,7 +550,7 @@ class WC_Gateway_Ebanx extends WC_Payment_Gateway
       return $messages[$errorCode][$lang];
     }
 
-    return 'Unknown error. Please contact the store administrator.';
+    return $errorCode . ' Unknown error. Please contact the store administrator.';
   }
 
   /**
