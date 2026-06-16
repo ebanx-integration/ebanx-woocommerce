@@ -1,3 +1,5 @@
+> ⚠️ **DEPRECATED** — This repository is no longer maintained. Please refer to the [official EBANX documentation](https://www.ebanx.com/business/en/developers) for up-to-date integration options.
+
 # EBANX WooCommerce Payment Gateway Plugin
 
 This plugin enables you to integrate your WooCommerce store with the EBANX payment gateway.

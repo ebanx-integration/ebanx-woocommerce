@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @deprecated This plugin is deprecated and no longer maintained.
+ *             See https://www.ebanx.com/business/en/developers for up-to-date integration options.
+ */
+
+/**
  * Copyright (c) 2013, EBANX Tecnologia da InformaÃ§Ã£o Ltda.
  *  All rights reserved.
  *
